@@ -1,5 +1,6 @@
 import { useApp } from '../lib/app';
 import { Header, Chips } from '../components/ui';
+import { telegramUserId } from '../lib/telegram';
 import type { Lang, ThemeSetting } from '../logic/types';
 
 export function Settings() {
@@ -59,6 +60,11 @@ export function Settings() {
           </div>
         </li>
       </ul>
+      {telegramUserId() != null && (
+        <p className="muted center small">
+          {settings.lang === 'ru' ? 'Ваш Telegram ID' : 'Your Telegram ID'}: <strong className="select">{telegramUserId()}</strong>
+        </p>
+      )}
       <p className="muted center small">
         {t('version')} {__APP_VERSION__}
       </p>
