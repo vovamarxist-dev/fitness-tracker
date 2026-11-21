@@ -18,6 +18,7 @@ export function Home() {
           <span />
         </div>
         <h1 className="brand">{t('appName')}</h1>
+        <div className="hazard" aria-hidden="true" />
         <p className="tagline">{t('tagline')}</p>
       </div>
 
@@ -30,13 +31,16 @@ export function Home() {
         ) : (
           <button className="btn btn-primary btn-xl" onClick={() => push({ name: 'pick' })}>
             {t('startWorkout')}
+            <small>{t('startHint')}</small>
           </button>
         )}
         <button className="btn btn-xl" onClick={() => push({ name: 'plans' })}>
           {t('myPlans')}
+          <small className="muted">{t('plansHint')}</small>
         </button>
         <button className="btn btn-xl" onClick={() => push({ name: 'settings' })}>
           {t('settings')}
+          <small className="muted">{t('settingsHint')}</small>
         </button>
       </nav>
 

@@ -78,7 +78,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const apply = () => {
       const theme = resolveTheme(settings);
       document.documentElement.dataset.theme = theme;
-      const bg = theme === 'dark' ? '#0f1115' : '#f4f5f2';
+      const bg = theme === 'dark' ? '#131417' : '#efeeea';
       document.querySelector('meta[name="theme-color"]')?.setAttribute('content', bg);
       if (tg?.isVersionAtLeast('6.1')) {
         tg.setHeaderColor?.(bg);

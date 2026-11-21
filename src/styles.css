@@ -1,38 +1,41 @@
-/* Тёмная тема по умолчанию: в зале часто тусклый свет, а экран не должен слепить */
+/* Тема «Завод»: графит, сигнальный оранжевый, цифры как на панели станка.
+   Тёмная по умолчанию: в зале часто тусклый свет, а экран не должен слепить */
 :root {
-  --bg: #0f1115;
-  --surface: #181b21;
-  --surface-2: #22262e;
-  --line: #2c313a;
-  --text: #f1f3f5;
-  --muted: #8b93a1;
-  --accent: #b8f24a;
-  --accent-ink: #0f1400;
-  --warn: #ffb020;
-  --danger: #ff5d5d;
-  --fig: #f1f3f5;
-  --fig-far: #5b6270;
-  --equip: #b8f24a;
-  --scene: #3a404b;
-  --radius: 16px;
+  --bg: #131417;
+  --surface: #1b1d21;
+  --surface-2: #24272c;
+  --line: #31353c;
+  --text: #f2f2f0;
+  --muted: #8a8f98;
+  --accent: #ff5a1f;
+  --accent-ink: #1a0a02;
+  --warn: #ffc21a;
+  --danger: #ff3b3b;
+  --fig: #f2f2f0;
+  --fig-far: #5c616b;
+  --equip: #ff5a1f;
+  --scene: #3a3e46;
+  --radius: 10px;
   --tap: 52px;
+  --mono: 'SF Mono', ui-monospace, 'JetBrains Mono', 'Roboto Mono', Menlo, Consolas, monospace;
+  --hazard: repeating-linear-gradient(-45deg, var(--accent) 0 8px, transparent 8px 16px);
   color-scheme: dark;
 }
 :root[data-theme='light'] {
-  --bg: #f4f5f2;
+  --bg: #efeeea;
   --surface: #ffffff;
-  --surface-2: #eceee9;
-  --line: #dfe2dc;
-  --text: #15181c;
-  --muted: #6a717c;
-  --accent: #4f8a00;
+  --surface-2: #e6e5e0;
+  --line: #d6d4cd;
+  --text: #17181b;
+  --muted: #676b73;
+  --accent: #e04a0e;
   --accent-ink: #ffffff;
-  --warn: #c77700;
-  --danger: #d63b3b;
-  --fig: #20242a;
-  --fig-far: #b4bac3;
-  --equip: #4f8a00;
-  --scene: #c9cdc5;
+  --warn: #b98200;
+  --danger: #d32626;
+  --fig: #1d1f23;
+  --fig-far: #b0b3b9;
+  --equip: #e04a0e;
+  --scene: #c7c5bd;
   color-scheme: light;
 }
 
@@ -269,3 +272,17 @@ button:disabled { opacity: 0.4; cursor: default; }
 .reps-list li.zero { opacity: 0.6; }
 .reps-list .stepper-row { background: var(--surface); }
 .reps-set { font-weight: 700; }
+
+/* ===== Тема «Завод» ===== */
+.big, .ring-time, .stat-value, .stepper-value, .reco-next, .num, .workout-target .big { font-family: var(--mono); letter-spacing: -0.02em; }
+.btn-primary { text-transform: uppercase; letter-spacing: 0.08em; }
+.btn-xxl { border-radius: 14px; }
+.brand { font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.14em; font-weight: 800; font-size: 32px; }
+.brand-mark span { border-radius: 2px; }
+.tagline { text-transform: uppercase; letter-spacing: 0.12em; font-size: 12px; }
+.hazard { height: 6px; width: 120px; background: var(--hazard); border-radius: 1px; opacity: 0.9; }
+.home-actions .btn { align-items: flex-start; text-align: left; padding: 14px 18px; }
+.home-actions .btn small { text-transform: none; letter-spacing: 0; font-weight: 500; }
+.section-title, .stepper-label, .field-label { letter-spacing: 0.06em; }
+.rest.over::before { content: ''; position: fixed; left: 0; right: 0; top: 0; height: 6px; background: repeating-linear-gradient(-45deg, var(--danger) 0 8px, transparent 8px 16px); }
+.chip.on { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }

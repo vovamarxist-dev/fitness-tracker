@@ -116,11 +116,11 @@ export function recommend(cur: ProgressInput, prev?: PrevInfo): Recommendation {
     if (streak >= need) {
       const next = roundDown(W + step, step);
       if (rebuilding && next >= (base.rebuildTarget as number)) {
-        msgs.push(`Все подходы выполнены. Разгон почти завершён: возвращаемся к ${fmtKg(next)} кг.`);
+        msgs.push(`Норма выполнена. Разгон почти завершён: возвращаемся к ${fmtKg(next)} кг.`);
       } else if (base.rebuildTarget != null && W === base.rebuildTarget) {
-        msgs.push(`Вы взяли вес, на котором был застой. Отлично! Следующая цель — ${fmtKg(next)} кг.`);
+        msgs.push(`Вес, на котором машина буксовала, взят. Следующая цель — ${fmtKg(next)} кг.`);
       } else {
-        msgs.push(`Все подходы выполнены. В следующий раз ${fmtKg(next)} кг (+${fmtKg(step)}).`);
+        msgs.push(`Норма выполнена. Повышаем нагрузку: в следующий раз ${fmtKg(next)} кг (+${fmtKg(step)}).`);
       }
       return finish({
         action: 'increase',
@@ -129,7 +129,7 @@ export function recommend(cur: ProgressInput, prev?: PrevInfo): Recommendation {
         state: { weight: next, successStreak: 0, failStreak: 0, rebuildTarget, resetCount },
       });
     }
-    msgs.push(`Все подходы выполнены. В изолирующих упражнениях закрепляем вес ещё на одну тренировку: снова ${fmtKg(W)} кг, потом прибавка.`);
+    msgs.push(`Норма выполнена. В изолирующих упражнениях обкатываем вес ещё одну смену: снова ${fmtKg(W)} кг, потом прибавка.`);
     return finish({
       action: 'hold',
       nextWeight: W,
@@ -153,7 +153,7 @@ export function recommend(cur: ProgressInput, prev?: PrevInfo): Recommendation {
         nextWeight: next,
         nextReps: reps,
         messages: [
-          `${fmtKg(W)} кг снова не поддались после отката. Нужна смена подхода, выберите один вариант:`,
+          `${fmtKg(W)} кг снова не поддались после отката. Машине нужна перенастройка, выберите один вариант:`,
           `• уменьшить шаг до ${fmtKg(half)} кг (мини-блины) и разогнаться от ${fmtKg(next)} кг;`,
           `• сменить схему ${S}×${reps} → ${S}×${Math.max(1, reps - 2)}, набрать вес, затем вернуть повторы.`,
         ],
@@ -171,8 +171,8 @@ export function recommend(cur: ProgressInput, prev?: PrevInfo): Recommendation {
       nextReps: reps,
       ladder,
       messages: [
-        `Две тренировки подряд ${fmtKg(target)} кг не взяты полностью — вес «встал». Делаем откат на 10%: ${fmtKg(next)} кг.`,
-        `План разгона: ${ladder.map(fmtKg).join(' → ')} кг. Так вы вернётесь к ${fmtKg(target)} кг со свежими силами и перешагнёте его.`,
+        `Две смены подряд ${fmtKg(target)} кг не взяты полностью: машина упёрлась. Плановое техобслуживание — откат на 10%, до ${fmtKg(next)} кг.`,
+        `План разгона: ${ladder.map(fmtKg).join(' → ')} кг. После обкатки машина вернётся к ${fmtKg(target)} кг и перешагнёт его.`,
       ],
       state: { weight: next, successStreak: 0, failStreak: 0, rebuildTarget: target, resetCount },
     });
