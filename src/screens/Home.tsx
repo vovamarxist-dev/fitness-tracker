@@ -31,16 +31,13 @@ export function Home() {
         ) : (
           <button className="btn btn-primary btn-xl" onClick={() => push({ name: 'pick' })}>
             {t('startWorkout')}
-            <small>{t('startHint')}</small>
           </button>
         )}
         <button className="btn btn-xl" onClick={() => push({ name: 'plans' })}>
           {t('myPlans')}
-          <small className="muted">{t('plansHint')}</small>
         </button>
         <button className="btn btn-xl" onClick={() => push({ name: 'settings' })}>
           {t('settings')}
-          <small className="muted">{t('settingsHint')}</small>
         </button>
       </nav>
 

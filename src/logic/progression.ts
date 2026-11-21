@@ -35,8 +35,8 @@ function restNote(rests: RestRecord[] | undefined, success: boolean): string | n
   const planned = sets.reduce((s, r) => s + r.planned, 0);
   const actual = sets.reduce((s, r) => s + r.actual, 0);
   const dev = (actual - planned) / planned;
-  if (!success && dev < -0.25) return 'Отдых между подходами был заметно короче плана: скорее всего, не хватило восстановления. Не сокращайте его.';
-  if (success && dev > 0.25) return 'Результат получен с отдыхом длиннее плана. В следующий раз держите таймер, тогда прибавка будет честной.';
+  if (!success && dev < -0.25) return 'Отдыхал заметно меньше плана — мышцы не успели восстановиться. Держи таймер, а не гони.';
+  if (success && dev > 0.25) return 'Подходы взяты, но с отдыхом длиннее плана. В следующий раз держи таймер — тогда прибавка честная.';
   return null;
 }
 
@@ -58,7 +58,7 @@ export function recommend(cur: ProgressInput, prev?: PrevInfo): Recommendation {
     if (!success && cur.setReps?.length) {
       const short = cur.setReps.filter((x) => x < reps);
       const missing = short.reduce((s, x) => s + (reps - x), 0);
-      messages.splice(1, 0, `Повторы по подходам: ${cur.setReps.join(' · ')} (план ${reps}). Не хватило ${missing} повт.`);
+      messages.splice(1, 0, `Повторы по подходам: ${cur.setReps.join(' · ')} (план ${reps}). Не добрал ${missing} повт.`);
     }
     if (note) messages.push(note);
     return { ...r, messages };
@@ -72,7 +72,7 @@ export function recommend(cur: ProgressInput, prev?: PrevInfo): Recommendation {
         action: 'reps',
         nextWeight: W,
         nextReps,
-        messages: [nextReps > 15 ? `Отлично! Больше 15 повторов: пора добавить отягощение 2,5 кг.` : `Все подходы выполнены. В следующий раз ${nextReps} повторов в подходе.`],
+        messages: [nextReps > 15 ? `Больше 15 повторов — пора вешать отягощение 2,5 кг.` : `Все подходы закрыты. В следующий раз — ${nextReps} повторов в подходе.`],
         state: { ...base, weight: W, successStreak: base.successStreak + 1, failStreak: 0 },
       });
     }
@@ -80,7 +80,7 @@ export function recommend(cur: ProgressInput, prev?: PrevInfo): Recommendation {
       action: 'hold',
       nextWeight: W,
       nextReps: reps,
-      messages: [`Не все подходы выполнены. Остаёмся на ${reps} повторах, цель — закрыть все ${S} подходов.`],
+      messages: [`Не все подходы закрыты. Остаёмся на ${reps} повторах — добей все ${S} подходов.`],
       state: { ...base, successStreak: 0, failStreak: base.failStreak + 1 },
     });
   }
@@ -95,7 +95,7 @@ export function recommend(cur: ProgressInput, prev?: PrevInfo): Recommendation {
       nextWeight: next,
       nextReps: reps,
       messages: [
-        `Перерыв ${Math.round(gap)} дн. — сила временно просела, это нормально. Снизьте вес до ${fmtKg(next)} кг (−${Math.round((1 - k) * 100)}%) и вернитесь к ${fmtKg(W)} кг за несколько тренировок.`,
+        `Перерыв ${Math.round(gap)} дн. — сила просела, это нормально. Снижай до ${fmtKg(next)} кг (−${Math.round((1 - k) * 100)}%) и за несколько тренировок вернись к ${fmtKg(W)} кг.`,
       ],
       state: { weight: next, successStreak: 0, failStreak: 0, rebuildTarget: W, resetCount: base.resetCount },
     });
@@ -116,11 +116,11 @@ export function recommend(cur: ProgressInput, prev?: PrevInfo): Recommendation {
     if (streak >= need) {
       const next = roundDown(W + step, step);
       if (rebuilding && next >= (base.rebuildTarget as number)) {
-        msgs.push(`Норма выполнена. Разгон почти завершён: возвращаемся к ${fmtKg(next)} кг.`);
+        msgs.push(`Все подходы закрыты. Разгон почти завершён — дальше ${fmtKg(next)} кг.`);
       } else if (base.rebuildTarget != null && W === base.rebuildTarget) {
-        msgs.push(`Вес, на котором машина буксовала, взят. Следующая цель — ${fmtKg(next)} кг.`);
+        msgs.push(`Взял вес, на котором стоял. Следующая цель — ${fmtKg(next)} кг.`);
       } else {
-        msgs.push(`Норма выполнена. Повышаем нагрузку: в следующий раз ${fmtKg(next)} кг (+${fmtKg(step)}).`);
+        msgs.push(`Все подходы закрыты. В следующий раз — ${fmtKg(next)} кг (+${fmtKg(step)}). Растём.`);
       }
       return finish({
         action: 'increase',
@@ -129,7 +129,7 @@ export function recommend(cur: ProgressInput, prev?: PrevInfo): Recommendation {
         state: { weight: next, successStreak: 0, failStreak: 0, rebuildTarget, resetCount },
       });
     }
-    msgs.push(`Норма выполнена. В изолирующих упражнениях обкатываем вес ещё одну смену: снова ${fmtKg(W)} кг, потом прибавка.`);
+    msgs.push(`Все подходы закрыты. В изоляции закрепляем вес ещё одну тренировку: снова ${fmtKg(W)} кг, потом прибавка.`);
     return finish({
       action: 'hold',
       nextWeight: W,
@@ -153,7 +153,7 @@ export function recommend(cur: ProgressInput, prev?: PrevInfo): Recommendation {
         nextWeight: next,
         nextReps: reps,
         messages: [
-          `${fmtKg(W)} кг снова не поддались после отката. Машине нужна перенастройка, выберите один вариант:`,
+          `${fmtKg(W)} кг снова не поддались после отката. Меняем подход — выбери вариант:`,
           `• уменьшить шаг до ${fmtKg(half)} кг (мини-блины) и разогнаться от ${fmtKg(next)} кг;`,
           `• сменить схему ${S}×${reps} → ${S}×${Math.max(1, reps - 2)}, набрать вес, затем вернуть повторы.`,
         ],
@@ -171,8 +171,8 @@ export function recommend(cur: ProgressInput, prev?: PrevInfo): Recommendation {
       nextReps: reps,
       ladder,
       messages: [
-        `Две смены подряд ${fmtKg(target)} кг не взяты полностью: машина упёрлась. Плановое техобслуживание — откат на 10%, до ${fmtKg(next)} кг.`,
-        `План разгона: ${ladder.map(fmtKg).join(' → ')} кг. После обкатки машина вернётся к ${fmtKg(target)} кг и перешагнёт его.`,
+        `Две тренировки подряд ${fmtKg(target)} кг не взяты полностью — вес встал. Откатываемся на 10%, до ${fmtKg(next)} кг.`,
+        `План разгона: ${ladder.map(fmtKg).join(' → ')} кг. Вернёшься к ${fmtKg(target)} кг со свежими силами и пробьёшь его.`,
       ],
       state: { weight: next, successStreak: 0, failStreak: 0, rebuildTarget: target, resetCount },
     });
@@ -184,7 +184,7 @@ export function recommend(cur: ProgressInput, prev?: PrevInfo): Recommendation {
       action: 'decrease',
       nextWeight: next,
       nextReps: reps,
-      messages: [`Выполнено меньше половины подходов (${C} из ${S}). Снизьте вес до ${fmtKg(next)} кг и закрепите технику.`],
+      messages: [`Закрыто меньше половины подходов (${C} из ${S}). Снижаем до ${fmtKg(next)} кг и ставим технику.`],
       state: { weight: next, successStreak: 0, failStreak: 0, rebuildTarget: base.rebuildTarget ?? W, resetCount: base.resetCount },
     });
   }
@@ -193,7 +193,7 @@ export function recommend(cur: ProgressInput, prev?: PrevInfo): Recommendation {
     action: 'hold',
     nextWeight: W,
     nextReps: reps,
-    messages: [`Выполнено ${C} из ${S} подходов. Остаёмся на ${fmtKg(W)} кг, цель — закрыть все подходы.`],
+    messages: [`Закрыто ${C} из ${S} подходов. Остаёмся на ${fmtKg(W)} кг — добей все подходы.`],
     state: { ...base, successStreak: 0, failStreak: fails },
   });
 }

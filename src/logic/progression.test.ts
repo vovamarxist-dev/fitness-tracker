@@ -105,7 +105,7 @@ describe('recommend', () => {
         { kind: 'set', planned: 120, actual: 70 },
       ],
     });
-    expect(r.messages.some((m) => m.includes('короче плана'))).toBe(true);
+    expect(r.messages.some((m) => m.includes('меньше плана'))).toBe(true);
   });
 });
 
@@ -113,6 +113,6 @@ describe('повторы по подходам', () => {
   it('при неудаче показывает повторы и недобор', () => {
     const r = recommend({ ...base, completedSets: 2, plannedSets: 3, setReps: [8, 8, 6] });
     expect(r.messages[1]).toContain('8 · 8 · 6');
-    expect(r.messages[1]).toContain('Не хватило 2');
+    expect(r.messages[1]).toContain('Не добрал 2');
   });
 });
