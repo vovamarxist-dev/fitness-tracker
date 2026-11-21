@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useApp, useLive } from '../lib/app';
 import { db } from '../lib/db';
-import { Sheet } from '../components/ui';
+import { Sheet, Stepper } from '../components/ui';
 import { ExerciseAnim } from '../anim/ExerciseAnim';
 import { getExercise, exName } from '../data/catalog';
 import { finishWorkout } from '../logic/workout';
@@ -77,11 +77,14 @@ export function Workout({ id }: { id: string }) {
   };
 
   /** Фиксирует результат упражнения и переходит к отдыху перед следующим */
-  const completeExercise = async (completedSets: number | null) => {
+  const completeExercise = async (setReps: number[] | null) => {
     setConfirmOpen(false);
     setMenuOpen(false);
     const entries = [...log.entries];
-    entries[c.index] = { ...entry, completedSets, finishedAt: Date.now(), startedAt: entry.startedAt || Date.now() };
+    // Полностью выполненный подход — все запланированные повторы (или больше)
+    const done = setReps?.filter((r) => r > 0) ?? null;
+    const completedSets = done ? done.filter((r) => r >= entry.reps).length : null;
+    entries[c.index] = { ...entry, completedSets, setReps: done ?? undefined, finishedAt: Date.now(), startedAt: entry.startedAt || Date.now() };
     const next = c.index + 1;
     if (next >= entries.length) {
       const done = await finishWorkout({ ...log, entries });
@@ -180,9 +183,10 @@ export function Workout({ id }: { id: string }) {
         <ConfirmSets
           key={`${c.index}-${c.setsDone}`}
           planned={entry.plannedSets}
-          initial={c.setsDone}
+          setsDone={c.setsDone}
+          targetReps={entry.reps}
           hint={t('confirmHint', { r: entry.reps, w: weightLabel })}
-          onConfirm={(n) => void completeExercise(n)}
+          onConfirm={(reps) => void completeExercise(reps)}
         />
       </Sheet>
 
@@ -203,24 +207,51 @@ export function Workout({ id }: { id: string }) {
   );
 }
 
-function ConfirmSets({ planned, initial, hint, onConfirm }: { planned: number; initial: number; hint: string; onConfirm: (n: number) => void }) {
+/** Подтверждение упражнения: повторы в каждом подходе. 0 — подход не делали. */
+function ConfirmSets({
+  planned,
+  setsDone,
+  targetReps,
+  hint,
+  onConfirm,
+}: {
+  planned: number;
+  setsDone: number;
+  targetReps: number;
+  hint: string;
+  onConfirm: (reps: number[]) => void;
+}) {
   const { t } = useApp();
-  const [n, setN] = useState(initial);
+  // Отмеченные подходы — по плану, неотмеченные — 0. Если не отмечено ни одного, считаем, что сделаны все.
+  const [reps, setReps] = useState<number[]>(() =>
+    Array.from({ length: Math.max(planned, setsDone) }, (_, i) => (setsDone === 0 || i < setsDone ? targetReps : 0)),
+  );
+  const set = (i: number, v: number) => setReps((r) => r.map((x, j) => (j === i ? v : x)));
+  const full = reps.filter((r) => r >= targetReps).length;
   return (
     <div className="confirm">
       <h2>{t('confirmTitle')}</h2>
       <p className="muted">{hint}</p>
-      <div className="confirm-grid">
-        {Array.from({ length: planned + 1 }, (_, i) => (
-          <button key={i} className={`num ${n === i ? 'on' : ''}`} onClick={() => (haptic.tap(), setN(i))}>
-            {i}
-          </button>
+      <ul className="reps-list">
+        {reps.map((r, i) => (
+          <li key={i} className={r >= targetReps ? 'full' : r === 0 ? 'zero' : 'part'}>
+            <span className="reps-set">{t('setN', { n: i + 1 })}</span>
+            <Stepper value={r} min={0} max={100} onChange={(v) => set(i, v)} />
+            {i >= planned && (
+              <button className="icon-btn" onClick={() => setReps((x) => x.filter((_, j) => j !== i))} aria-label={t('delete')}>
+                ✕
+              </button>
+            )}
+          </li>
         ))}
-      </div>
-      <p className="confirm-of">
-        {n} / {planned}
-      </p>
-      <button className="btn btn-primary btn-block btn-xl" onClick={() => onConfirm(n)}>
+      </ul>
+      {reps.length < planned + 5 && (
+        <button className="btn btn-ghost btn-block" onClick={() => setReps((x) => [...x, targetReps])}>
+          + {t('addSet')}
+        </button>
+      )}
+      <p className="confirm-of">{t('fullSets', { a: full, b: planned })}</p>
+      <button className="btn btn-primary btn-block btn-xl" onClick={() => onConfirm(reps)}>
         {t('confirm')}
       </button>
     </div>

@@ -70,7 +70,7 @@ export function Summary({ id }: { id: string }) {
                   <span className="muted small">
                     {e.completedSets == null
                       ? t('skipped')
-                      : `${e.completedSets}/${e.plannedSets} × ${e.reps} · ${e.weight > 0 ? `${fmtKg(e.weight)} ${t('kg')}` : t('noWeight')}`}
+                      : `${e.setReps?.length ? e.setReps.join(' · ') : `${e.completedSets}/${e.plannedSets} × ${e.reps}`} · ${e.weight > 0 ? `${fmtKg(e.weight)} ${t('kg')}` : t('noWeight')}`}
                   </span>
                 </div>
                 {e.reco && e.reco.nextWeight !== e.weight && <span className="reco-next">{fmtKg(e.reco.nextWeight)} {t('kg')}</span>}

@@ -12,6 +12,7 @@ export interface ProgressInput {
   mechanic: Mechanic;
   date: number;
   rests?: RestRecord[];
+  setReps?: number[]; // фактические повторы в подходах
 }
 
 export interface PrevInfo {
@@ -53,6 +54,12 @@ export function recommend(cur: ProgressInput, prev?: PrevInfo): Recommendation {
   const note = restNote(cur.rests, success);
   const finish = (r: Omit<Recommendation, 'messages'> & { messages?: string[] }): Recommendation => {
     const messages = [...(r.messages ?? msgs)];
+    // При неудаче показываем, где именно не хватило повторов
+    if (!success && cur.setReps?.length) {
+      const short = cur.setReps.filter((x) => x < reps);
+      const missing = short.reduce((s, x) => s + (reps - x), 0);
+      messages.splice(1, 0, `Повторы по подходам: ${cur.setReps.join(' · ')} (план ${reps}). Не хватило ${missing} повт.`);
+    }
     if (note) messages.push(note);
     return { ...r, messages };
   };

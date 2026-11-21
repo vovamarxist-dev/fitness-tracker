@@ -17,6 +17,8 @@ export interface Pattern {
   anchor?: Pt; // точка крепления троса для блочных упражнений
   bar?: boolean; // во фронтальном виде — общая рукоять/гриф между кистями
   scene?: string; // неподвижное оборудование (path d)
+  dur?: number; // длительность цикла, сек
+  behind?: boolean; // снаряд за головой (рисуется под фигурой)
 }
 
 function P(s: string): Pose {
@@ -265,6 +267,7 @@ export const PATTERNS: Record<string, Pattern> = {
   },
   swing: {
     view: 'side',
+    dur: 1.6,
     anchor: [8, 90],
     A: P('h 68 40 n 62 44 p 40 56 k 55 73 a 50 90 e 56 58 w 48 70'),
     B: P('h 50 14 n 50 22 p 48 48 k 50 70 a 50 90 e 62 27 w 75 27'),
@@ -285,6 +288,220 @@ export const PATTERNS: Record<string, Pattern> = {
   },
 
   // ПРЕСС
+
+  // ВАРИАЦИИ (чтобы похожие упражнения выглядели по-разному)
+  bench_close: { view: 'side', scene: BENCH, A: merge(LYING, 'e 41 74 w 39 60'), B: merge(LYING, 'e 33 52 w 33 38') },
+  bench_wide: { view: 'side', scene: BENCH, A: merge(LYING, 'e 29 79 w 35 62'), B: merge(LYING, 'e 30 55 w 32 43') },
+  jm_press: { view: 'side', scene: BENCH, A: merge(LYING, 'e 40 57 w 31 57'), B: merge(LYING, 'e 31 52 w 31 38') },
+  fly_side: { view: 'side', scene: BENCH, A: merge(LYING, 'e 33 79 w 35 86'), B: merge(LYING, 'e 31 54 w 31 41') },
+  chest_press_up: {
+    view: 'side',
+    scene: 'M30 68 H54 M34 68 V91 M30 68 L28 28',
+    A: P('h 36 30 n 35 38 p 37 66 k 56 66 a 58 90 e 28 46 w 42 44'),
+    B: P('h 36 30 n 35 38 p 37 66 k 56 66 a 58 90 e 46 31 w 57 21'),
+  },
+  pushup_front: {
+    view: 'front',
+    A: P('h 50 64 n 50 70 p 50 76 k 48 82 a 48 88 e 30 72 w 33 91'),
+    B: P('h 50 44 n 50 52 p 50 66 k 48 80 a 48 88 e 38 72 w 33 91'),
+  },
+  pushup_elev: {
+    view: 'side',
+    scene: 'M76 80 H96 V91 M76 80 V91',
+    A: P('h 21 76 n 29 78 p 54 77 k 70 79 a 86 79 t 88 75 e 41 82 w 31 91'),
+    B: P('h 23 60 n 31 63 p 56 69 k 71 74 a 86 79 t 88 75 e 32 77 w 31 91'),
+  },
+  pushup_incline: {
+    view: 'side',
+    scene: 'M14 66 H40 M18 66 V91 M36 66 V91',
+    A: P('h 22 56 n 30 60 p 54 72 k 70 80 a 86 88 t 88 92 e 40 62 w 30 66'),
+    B: P('h 20 46 n 28 52 p 54 70 k 70 79 a 86 88 t 88 92 e 29 59 w 30 66'),
+  },
+  dip_chest: {
+    view: 'side',
+    scene: 'M36 50 H64 M60 50 V91',
+    A: P('h 55 20 n 52 27 p 46 52 k 50 66 a 40 72 e 50 39 w 50 50'),
+    B: P('h 61 36 n 56 42 p 46 62 k 50 78 a 40 84 e 42 45 w 50 50'),
+  },
+  bench_dip: {
+    view: 'side',
+    scene: 'M18 56 H44 M22 56 V91 M40 56 V91',
+    A: P('h 42 22 n 40 30 p 40 56 k 62 58 a 74 90 e 36 43 w 34 56'),
+    B: P('h 42 36 n 40 44 p 40 70 k 62 66 a 74 90 e 27 50 w 34 56'),
+  },
+  pulldown_neck: {
+    view: 'front',
+    bar: true,
+    behind: true,
+    anchor: [50, 0],
+    scene: 'M36 66 H64 M50 66 V91',
+    A: P('h 50 30 n 50 38 p 50 64 k 41 68 a 40 90 e 37 25 w 32 12'),
+    B: P('h 50 30 n 50 38 p 50 64 k 41 68 a 40 90 e 30 42 w 33 32'),
+  },
+  row_bent_hi: {
+    view: 'side',
+    A: P('h 70 26 n 64 30 p 46 50 k 54 70 a 50 90 e 64 44 w 64 58'),
+    B: P('h 70 26 n 64 30 p 46 50 k 54 70 a 50 90 e 52 33 w 56 48'),
+  },
+  row_one: {
+    view: 'side',
+    scene: 'M34 68 H82 M38 68 V91 M78 68 V91',
+    A: P('h 75 38 n 68 41 p 44 52 k 50 72 a 46 90 k2 58 66 a2 40 66 t2 36 64 e 66 55 w 66 69 e2 70 54 w2 72 67'),
+    B: P('h 75 38 n 68 41 p 44 52 k 50 72 a 46 90 k2 58 66 a2 40 66 t2 36 64 e 56 37 w 60 50 e2 70 54 w2 72 67'),
+  },
+  straight_pulldown_rope: {
+    view: 'side',
+    anchor: [80, 0],
+    A: P('h 52 16 n 51 24 p 48 50 k 51 70 a 50 90 e 61 13 w 72 5'),
+    B: P('h 53 16 n 52 24 p 48 50 k 51 70 a 50 90 e 49 38 w 44 51'),
+  },
+  deadlift_sumo: {
+    view: 'front',
+    A: P('h 50 46 n 50 54 p 50 70 k 32 72 a 34 90 e 44 67 w 44 80'),
+    B: P('h 50 14 n 50 22 p 50 48 k 40 70 a 34 90 e 44 36 w 44 50'),
+  },
+  rack_pull: {
+    view: 'side',
+    scene: 'M68 30 V91 M60 72 H74',
+    A: P('h 63 30 n 57 35 p 42 52 k 52 70 a 50 90 e 58 50 w 58 64'),
+    B: P('h 50 14 n 50 22 p 48 48 k 50 70 a 50 90 e 51 37 w 51 51'),
+  },
+  sldl: {
+    view: 'side',
+    A: P('h 50 14 n 50 22 p 48 48 k 50 70 a 50 90 e 51 37 w 51 51'),
+    B: P('h 72 46 n 64 49 p 40 50 k 47 70 a 50 90 e 64 63 w 64 77'),
+  },
+  ghr: {
+    view: 'side',
+    scene: 'M30 84 H50 M40 84 V91 M16 74 L28 80',
+    A: P('h 47 22 n 46 30 p 44 56 k 40 80 a 24 78 t 20 74 e 52 40 w 54 33'),
+    B: P('h 87 55 n 80 57 p 58 68 k 40 80 a 24 78 t 20 74 e 77 65 w 81 62'),
+  },
+  press_neck: {
+    view: 'front',
+    bar: true,
+    behind: true,
+    A: P('h 50 22 n 50 30 p 50 56 k 47 74 a 46 90 e 36 33 w 38 24'),
+    B: P('h 50 22 n 50 30 p 50 56 k 47 74 a 46 90 e 40 18 w 41 6'),
+  },
+  arnold: {
+    view: 'front',
+    scene: 'M34 62 H66 M50 62 V91',
+    A: P('h 50 26 n 50 34 p 50 60 k 41 68 a 40 90 e 45 46 w 46 33'),
+    B: P('h 50 26 n 50 34 p 50 60 k 41 68 a 40 90 e 40 22 w 41 10'),
+  },
+  bent_raise_seated: {
+    view: 'side',
+    scene: 'M28 66 H54 M36 66 V91',
+    A: P('h 67 52 n 61 54 p 40 64 k 58 66 a 60 90 e 59 68 w 59 80'),
+    B: P('h 67 52 n 61 54 p 40 64 k 58 66 a 60 90 e 63 45 w 66 38'),
+  },
+  curl_f: { view: 'front', A: merge(FRONT, 'e 42 37 w 41 51'), B: merge(FRONT, 'e 42 37 w 42 28') },
+  curl_drag: { view: 'side', A: merge(STAND, 'e 50 37 w 51 51'), B: merge(STAND, 'e 41 34 w 53 33') },
+  curl_cross: { view: 'front', A: merge(FRONT, 'e 42 37 w 41 51'), B: merge(FRONT, 'e 44 38 w 53 30') },
+  curl_incline: {
+    view: 'side',
+    scene: 'M40 70 L24 30 M40 70 H58 M46 70 V91',
+    A: P('h 26 26 n 30 34 p 40 66 k 58 66 a 60 90 e 29 50 w 28 64'),
+    B: P('h 26 26 n 30 34 p 40 66 k 58 66 a 60 90 e 29 50 w 36 38'),
+  },
+  curl_conc: {
+    view: 'side',
+    scene: 'M26 66 H48 M34 66 V91',
+    A: P('h 62 40 n 56 44 p 38 64 k 58 64 a 60 90 e 56 60 w 60 74'),
+    B: P('h 62 40 n 56 44 p 38 64 k 58 64 a 60 90 e 56 60 w 54 46'),
+  },
+  curl_spider: {
+    view: 'side',
+    scene: 'M28 82 L68 50 M38 80 V91 M62 56 V91',
+    A: P('h 72 40 n 65 45 p 40 66 k 30 80 a 22 90 e 65 60 w 65 74'),
+    B: P('h 72 40 n 65 45 p 40 66 k 30 80 a 22 90 e 65 60 w 70 49'),
+  },
+  curl_machine: {
+    view: 'side',
+    scene: 'M28 66 H50 M38 66 V91 M50 47 H72 M66 47 V91',
+    A: P('h 44 30 n 44 38 p 42 66 k 60 66 a 60 90 e 60 44 w 75 45'),
+    B: P('h 44 30 n 44 38 p 42 66 k 60 66 a 60 90 e 60 44 w 55 29'),
+  },
+  pushdown_f: { view: 'front', anchor: [50, 0], bar: true, A: merge(FRONT, 'e 43 37 w 46 29'), B: merge(FRONT, 'e 43 37 w 39 51') },
+  skull_behind: { view: 'side', scene: BENCH, A: merge(LYING, 'e 30 53 w 15 61'), B: merge(LYING, 'e 31 52 w 31 38') },
+  squat_deep: {
+    view: 'side',
+    attach: 'neck',
+    A: P('h 48 14 n 48 22 p 48 48 k 50 70 a 48 90 e 40 32 w 45 23'),
+    B: P('h 57 45 n 53 51 p 40 75 k 61 76 a 48 90 e 45 59 w 50 52'),
+  },
+  squat_fv: {
+    view: 'front',
+    A: P('h 50 14 n 50 22 p 50 48 k 42 70 a 38 90 e 43 37 w 46 48'),
+    B: P('h 50 30 n 50 38 p 50 64 k 33 67 a 38 90 e 43 53 w 46 64'),
+  },
+  leg_press_low: {
+    view: 'side',
+    attach: 'platform',
+    scene: 'M40 74 L18 40 M40 74 L44 91 M20 80 H46',
+    A: merge(legPressBody, 'k 42 52 a 56 66'),
+    B: merge(legPressBody, 'k 50 63 a 68 55'),
+  },
+  lunge_step: {
+    view: 'side',
+    A: P('h 50 14 n 50 22 p 50 48 k 51 70 a 50 90 e 50 37 w 50 51 k2 49 70 a2 50 90'),
+    B: P('h 52 30 n 52 38 p 50 64 k 66 66 a 68 90 e 52 53 w 52 67 k2 40 85 a2 30 89 t2 36 92'),
+  },
+  lunge_back: {
+    view: 'side',
+    A: P('h 52 14 n 52 22 p 52 48 k 53 70 a 52 90 e 52 37 w 52 51 k2 51 70 a2 52 90'),
+    B: P('h 48 30 n 48 38 p 46 64 k 60 68 a 54 90 e 48 53 w 48 67 k2 33 84 a2 21 89 t2 27 92'),
+  },
+  lunge_bulg: {
+    view: 'side',
+    scene: 'M8 70 H30 M12 70 V91 M26 70 V91',
+    A: P('h 50 18 n 50 26 p 48 52 k 60 70 a 62 90 e 50 41 w 50 55 k2 36 64 a2 26 70 t2 20 67'),
+    B: P('h 50 32 n 50 40 p 46 66 k 64 68 a 62 90 e 50 55 w 50 69 k2 32 80 a2 26 70 t2 20 67'),
+  },
+  stepup: {
+    view: 'side',
+    scene: 'M52 72 H78 V91 M52 72 V91',
+    A: P('h 44 18 n 44 26 p 44 52 k 58 60 a 60 71 t 66 71 e 44 41 w 44 55 k2 44 72 a2 44 90'),
+    B: P('h 58 6 n 58 14 p 58 40 k 60 56 a 60 71 t 66 71 e 58 29 w 58 43 k2 55 58 a2 56 72'),
+  },
+  glute_bridge_1: {
+    view: 'side',
+    A: P('h 16 86 n 24 87 p 44 88 k 60 72 a 66 90 e 34 88 w 44 85 k2 62 64 a2 80 54'),
+    B: P('h 16 86 n 24 87 p 46 76 k 62 70 a 66 90 e 35 80 w 46 73 k2 64 58 a2 84 48'),
+  },
+  situp: {
+    view: 'side',
+    A: P('h 18 84 n 26 86 p 50 86 k 62 72 a 72 90 e 24 78 w 20 82'),
+    B: P('h 50 54 n 48 62 p 50 86 k 62 72 a 72 90 e 54 57 w 50 56'),
+  },
+  twist: {
+    view: 'side',
+    A: P('h 50 40 n 50 48 p 50 72 k 40 66 a 32 74 k2 60 66 a2 68 74 e 42 60 w 34 64 e2 44 62 w2 36 66'),
+    B: P('h 50 40 n 50 48 p 50 72 k 40 66 a 32 74 k2 60 66 a2 68 74 e 58 60 w 66 64 e2 56 62 w2 64 66'),
+  },
+  rev_crunch: {
+    view: 'side',
+    A: P('h 16 84 n 24 86 p 48 86 k 58 70 a 70 74 e 34 90 w 42 90'),
+    B: P('h 16 84 n 24 86 p 46 80 k 40 62 a 54 58 e 34 90 w 42 90'),
+  },
+  side_plank: {
+    view: 'side',
+    dur: 3.6,
+    A: P('h 25 62 n 32 66 p 54 77 k 70 83 a 86 88 t 88 92 e 32 90 w 22 90 e2 32 51 w2 32 37'),
+    B: P('h 25 61 n 32 65 p 54 72 k 70 81 a 86 88 t 88 92 e 32 90 w 22 90 e2 32 50 w2 32 36'),
+  },
+  rollout: {
+    view: 'side',
+    A: P('h 64 50 n 58 53 p 42 66 k 40 90 a 24 90 t 20 92 e 62 67 w 62 82'),
+    B: P('h 80 71 n 74 73 p 47 76 k 40 90 a 24 90 t 20 92 e 84 78 w 90 84'),
+  },
+  wrist_curl_rev: {
+    view: 'side',
+    scene: 'M34 70 H72 M40 70 V91 M66 70 V91',
+    A: P('h 34 32 n 33 40 p 26 64 k 24 90 a 8 90 t 4 92 e 48 67 w 66 67'),
+    B: P('h 34 32 n 33 40 p 26 64 k 24 90 a 8 90 t 4 92 e 48 67 w 66 60'),
+  },
   crunch: {
     view: 'side',
     A: P('h 18 84 n 26 86 p 50 86 k 62 72 a 72 90 e 24 78 w 20 82'),
@@ -309,6 +526,7 @@ export const PATTERNS: Record<string, Pattern> = {
   },
   plank: {
     view: 'side',
+    dur: 3.6,
     A: P('h 23 72 n 30 75 p 54 80 k 70 85 a 86 88 t 88 92 e 31 90 w 22 90'),
     B: P('h 23 71 n 30 74 p 54 77 k 70 84 a 86 88 t 88 92 e 31 90 w 22 90'),
   },

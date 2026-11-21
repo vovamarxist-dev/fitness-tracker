@@ -73,6 +73,7 @@ export interface WorkoutEntry {
   weight: number;
   step: number;
   completedSets: number | null; // null — упражнение пропущено
+  setReps?: number[]; // фактические повторы в каждом подходе
   rests: RestRecord[]; // отдых между подходами этого упражнения
   startedAt: number;
   finishedAt: number | null;

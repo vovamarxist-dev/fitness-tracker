@@ -260,3 +260,12 @@ button:disabled { opacity: 0.4; cursor: default; }
 .draft { align-self: flex-start; font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--warn); border: 1px solid var(--warn); border-radius: 6px; padding: 2px 8px; }
 .settings-links { margin-top: 6px; }
 .select { user-select: text; -webkit-user-select: text; color: var(--text); }
+
+/* Повторы по подходам в подтверждении */
+.reps-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; text-align: left; }
+.reps-list li { display: grid; grid-template-columns: 86px 1fr auto; align-items: center; gap: 10px; padding: 6px 10px; border-radius: 14px; background: var(--surface-2); border: 1px solid transparent; }
+.reps-list li.full { border-color: var(--accent); }
+.reps-list li.part { border-color: var(--warn); }
+.reps-list li.zero { opacity: 0.6; }
+.reps-list .stepper-row { background: var(--surface); }
+.reps-set { font-weight: 700; }

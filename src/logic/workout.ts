@@ -49,6 +49,7 @@ export async function finishWorkout(log: WorkoutLog): Promise<WorkoutLog> {
         mechanic: ex?.mechanic ?? 'compound',
         date: e.startedAt || done.startedAt,
         rests: e.rests,
+        setReps: e.setReps,
       },
       prev?.entry.reco ? { state: prev.entry.reco.state, date: prev.entry.startedAt || prev.log.startedAt } : undefined,
     );
