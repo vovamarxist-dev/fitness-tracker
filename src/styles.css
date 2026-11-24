@@ -15,6 +15,10 @@
   --fig-far: #5c616b;
   --equip: #ff5a1f;
   --scene: #3a3e46;
+  --pad: #565c68;
+  --stack: #2c3037;
+  --muscle: #ff3d6e;
+  --guide: #8a8f98;
   --radius: 10px;
   --tap: 52px;
   --mono: 'SF Mono', ui-monospace, 'JetBrains Mono', 'Roboto Mono', Menlo, Consolas, monospace;
@@ -36,6 +40,10 @@
   --fig-far: #b0b3b9;
   --equip: #e04a0e;
   --scene: #c7c5bd;
+  --pad: #8f939b;
+  --stack: #d9d7d0;
+  --muscle: #e0245e;
+  --guide: #8a8d94;
   color-scheme: light;
 }
 
@@ -167,18 +175,46 @@ button:disabled { opacity: 0.4; cursor: default; }
 /* Анимация упражнения */
 .exercise-anim { display: block; }
 .exercise-anim .floor { stroke: var(--scene); stroke-width: 1.5; stroke-linecap: round; }
-.exercise-anim .scene { fill: none; stroke: var(--scene); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+/* Рама тренажёров и стоек — тонкая; сиденья, спинки, валики — толстые «мягкие» */
+.exercise-anim .scene { fill: none; stroke: var(--scene); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.exercise-anim .pads { fill: none; stroke: var(--pad); stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; }
 .exercise-anim polyline { fill: none; stroke-linecap: round; stroke-linejoin: round; }
-.exercise-anim .torso { stroke: var(--fig); stroke-width: 5.5; }
-.exercise-anim .limb { stroke: var(--fig); stroke-width: 4; }
+.exercise-anim .torso { stroke: var(--fig); stroke-width: 6; }
+.exercise-anim .limb { stroke: var(--fig); stroke-width: 4.2; }
 .exercise-anim .limb.far { stroke: var(--fig-far); }
 .exercise-anim .head { fill: var(--fig); }
+/* Работающая мышца */
+.exercise-anim .muscle { stroke: var(--muscle); stroke-width: 3; opacity: 0.9; }
+.exercise-anim .muscle-dot { fill: var(--muscle); opacity: 0.85; }
+/* Траектория движения */
+.exercise-anim .motion { fill: none; stroke: var(--guide); stroke-width: 1.1; stroke-dasharray: 2.2 2; opacity: 0.85; }
+.exercise-anim .motion-head { fill: var(--guide); }
+/* Снаряды */
 .exercise-anim .plate { fill: none; stroke: var(--equip); stroke-width: 3.2; }
 .exercise-anim .hub, .exercise-anim .dumbbell, .exercise-anim .pad { fill: var(--equip); }
-.exercise-anim .bar { stroke: var(--equip); stroke-width: 2.4; stroke-linecap: round; }
+.exercise-anim .hub-in { fill: var(--bg); }
+.exercise-anim .bar { fill: none; stroke: var(--equip); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.exercise-anim .bar-poly { stroke: var(--equip); stroke-width: 2.4; }
 .exercise-anim .plate-edge { stroke: var(--equip); stroke-width: 4.5; stroke-linecap: round; }
-.exercise-anim .cable { stroke: var(--equip); stroke-width: 1.2; stroke-dasharray: 2 2; }
+.exercise-anim .db-handle { stroke: var(--equip); stroke-width: 1.8; stroke-linecap: round; }
+.exercise-anim .db-head { stroke: var(--equip); stroke-width: 3.4; stroke-linecap: round; }
+.exercise-anim .kb-handle { fill: none; stroke: var(--equip); stroke-width: 1.5; }
 .exercise-anim .platform { stroke: var(--equip); stroke-width: 3.5; stroke-linecap: round; }
+/* Блоки и тренажёры */
+.exercise-anim .cable { stroke: var(--equip); stroke-width: 1; opacity: 0.9; }
+.exercise-anim .rope { stroke: var(--equip); stroke-width: 1.8; }
+.exercise-anim .handle { fill: none; stroke: var(--equip); stroke-width: 1.8; }
+.exercise-anim .pulley { fill: var(--bg); stroke: var(--equip); stroke-width: 1.3; }
+.exercise-anim .arm { stroke: var(--equip); stroke-width: 2.6; stroke-linecap: round; }
+.exercise-anim .stack { fill: var(--stack); stroke: var(--scene); stroke-width: 0.6; }
+.exercise-anim .stack-move { fill: var(--equip); }
+.anim-cues { list-style: none; margin: 8px 0 4px; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+.anim-legend { display: flex; justify-content: center; align-items: center; gap: 6px; margin: 2px 0 6px; font-size: 11px; color: var(--muted); }
+.anim-legend span { display: inline-block; width: 14px; height: 3px; border-radius: 2px; margin-left: 8px; }
+.anim-legend .lg-muscle { background: var(--muscle); margin-left: 0; }
+.anim-legend .lg-motion { background: repeating-linear-gradient(90deg, var(--guide) 0 3px, transparent 3px 5px); }
+.anim-legend .lg-equip { background: var(--equip); }
+.anim-cues li { font-size: 12px; line-height: 1.2; padding: 5px 9px; border-radius: 999px; background: var(--surface-2); color: var(--text); border: 1px solid var(--line); }
 .anim-missing { border-radius: 12px; background: var(--surface-2); }
 
 /* Нижняя шторка */

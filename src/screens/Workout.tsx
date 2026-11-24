@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useApp, useLive } from '../lib/app';
 import { db } from '../lib/db';
-import { Sheet, Stepper, WeightInput } from '../components/ui';
+import { Sheet, Stepper, WeightInput, AnimCues } from '../components/ui';
 import { ExerciseAnim } from '../anim/ExerciseAnim';
 import { getExercise, exName } from '../data/catalog';
 import { finishWorkout } from '../logic/workout';
@@ -134,7 +134,7 @@ export function Workout({ id }: { id: string }) {
             ? `${t('setOf', { a: c.setsDone + 1, b: entry.plannedSets })} · ${weightLabel}`
             : `${exName(nextEx, lang)} · ${entry.plannedSets} × ${entry.reps} · ${weightLabel}`
         }
-        anim={nextEx ? { anim: nextEx.anim, equipment: nextEx.equipment } : undefined}
+        anim={nextEx ? { anim: nextEx.anim, equipment: nextEx.equipment, muscles: nextEx.muscles } : undefined}
         buttonLabel={c.phase === 'restSet' ? t('startSet') : t('startNextExercise')}
         onEnd={endRest}
         progress={progress}
@@ -156,10 +156,11 @@ export function Workout({ id }: { id: string }) {
       <section className="workout-main">
         {ex && (
           <div className="workout-anim">
-            <ExerciseAnim anim={ex.anim} equipment={ex.equipment} size={150} />
+            <ExerciseAnim anim={ex.anim} equipment={ex.equipment} muscle={ex.muscles[0]} size={170} />
           </div>
         )}
         <h1 className="workout-name">{exName(ex, lang)}</h1>
+        {ex && <AnimCues anim={ex.anim} equipment={ex.equipment} group={ex.group} lang={lang} />}
         <div className="workout-target">
           <div>
             <span className="big">{entry.plannedSets}</span>
@@ -318,7 +319,7 @@ function RestTimer({
   nextLine: string;
   buttonLabel: string;
   onEnd: () => void;
-  anim?: { anim: string; equipment: import('../logic/types').Equipment };
+  anim?: { anim: string; equipment: import('../logic/types').Equipment; muscles: string[] };
   progress: string;
   sound: boolean;
   reminders: boolean;
@@ -407,7 +408,7 @@ function RestTimer({
         </div>
       </div>
       <div className="rest-next">
-        {anim && <ExerciseAnim anim={anim.anim} equipment={anim.equipment} size={64} />}
+        {anim && <ExerciseAnim anim={anim.anim} equipment={anim.equipment} muscle={anim.muscles[0]} size={64} guides={false} />}
         <div>
           <span className="muted small">{t('upNext')}</span>
           <strong>{nextLine}</strong>

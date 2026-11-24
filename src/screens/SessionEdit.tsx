@@ -72,7 +72,7 @@ export function SessionEdit({ id }: { id: string }) {
           return (
             <li key={pe.uid} className="card plan-ex">
               <div className="plan-ex-head">
-                {ex && <LazyAnim anim={ex.anim} equipment={ex.equipment} size={56} />}
+                {ex && <LazyAnim anim={ex.anim} equipment={ex.equipment} muscle={ex.muscles[0]} size={56} />}
                 <div className="plan-ex-title">
                   <strong>
                     {i + 1}. {exName(ex, settings.lang)}

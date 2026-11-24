@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useApp, useLive } from '../lib/app';
 import { db, uid } from '../lib/db';
-import { Header, Chips, Sheet, LazyAnim, fmtRest } from '../components/ui';
+import { Header, Chips, Sheet, LazyAnim, AnimCues, fmtRest } from '../components/ui';
 import { ExerciseAnim } from '../anim/ExerciseAnim';
 import { allExercises, EQUIP_LABEL, GROUPS, GROUP_LABEL, exName, muscleLabel } from '../data/catalog';
 import type { CatalogExercise, Equipment, MuscleGroup } from '../logic/types';
@@ -62,7 +62,7 @@ export function Catalog({ sessionId }: { sessionId?: string }) {
           const n = countIn(ex.id);
           return (
             <button key={ex.id} className={`ex-card ${n ? 'in-plan' : ''}`} onClick={() => setOpen(ex)}>
-              <LazyAnim anim={ex.anim} equipment={ex.equipment} size={88} />
+              <LazyAnim anim={ex.anim} equipment={ex.equipment} muscle={ex.muscles[0]} size={88} />
               <span className="ex-card-name">{exName(ex, lang)}</span>
               <span className="ex-card-meta">{EQUIP_LABEL[lang][ex.equipment]}</span>
               {n > 0 && <span className="badge">✓</span>}
@@ -79,8 +79,14 @@ export function Catalog({ sessionId }: { sessionId?: string }) {
         {open && (
           <div className="ex-detail">
             <div className="ex-detail-anim">
-              <ExerciseAnim anim={open.anim} equipment={open.equipment} size={220} />
+              <ExerciseAnim anim={open.anim} equipment={open.equipment} muscle={open.muscles[0]} size={220} />
             </div>
+            <AnimCues anim={open.anim} equipment={open.equipment} group={open.group} lang={lang} />
+            <p className="anim-legend">
+              <span className="lg-muscle" /> {lang === 'ru' ? 'работают' : 'target'}
+              <span className="lg-motion" /> {lang === 'ru' ? 'траектория' : 'path'}
+              <span className="lg-equip" /> {lang === 'ru' ? 'вес и рукояти' : 'load'}
+            </p>
             <h2>{exName(open, lang)}</h2>
             {lang === 'ru' && <p className="muted small">{open.en}</p>}
             <dl className="ex-facts">

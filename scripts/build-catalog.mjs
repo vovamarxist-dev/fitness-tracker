@@ -16,15 +16,15 @@ Wide-Grip_Barbell_Bench_Press|Жим штанги лёжа широким хва
 Barbell_Incline_Bench_Press_-_Medium_Grip|Жим штанги на наклонной скамье|incline_press
 Decline_Barbell_Bench_Press|Жим штанги лёжа головой вниз|bench_press+decline
 Dumbbell_Bench_Press|Жим гантелей лёжа|bench_press
-Dumbbell_Bench_Press_with_Neutral_Grip|Жим гантелей лёжа нейтральным хватом|bench_close
+Dumbbell_Bench_Press_with_Neutral_Grip|Жим гантелей лёжа нейтральным хватом|bench_close+neutral
 Incline_Dumbbell_Press|Жим гантелей на наклонной скамье|incline_press
-Hammer_Grip_Incline_DB_Bench_Press|Жим гантелей на наклонной нейтральным хватом|bench_close+incline
+Hammer_Grip_Incline_DB_Bench_Press|Жим гантелей на наклонной нейтральным хватом|bench_close+incline+neutral
 Decline_Dumbbell_Bench_Press|Жим гантелей лёжа головой вниз|bench_press+decline
 Smith_Machine_Bench_Press|Жим лёжа в Смите|bench_press+rails
 Smith_Machine_Incline_Bench_Press|Жим в Смите на наклонной скамье|incline_press+rails
 Machine_Bench_Press|Жим от груди в тренажёре|chest_press
-Leverage_Chest_Press|Жим от груди в рычажном тренажёре|chest_press+pause
-Leverage_Incline_Chest_Press|Жим в рычажном тренажёре под углом вверх|chest_press_up
+Leverage_Chest_Press|Жим от груди в рычажном тренажёре|chest_press+plates
+Leverage_Incline_Chest_Press|Жим в рычажном тренажёре под углом вверх|chest_press_up+plates
 Cable_Chest_Press|Жим от груди в кроссовере|chest_press
 Dumbbell_Flyes|Разводка гантелей лёжа|fly_side
 Incline_Dumbbell_Flyes|Разводка гантелей на наклонной скамье|fly_side+incline
@@ -42,21 +42,21 @@ Straight-Arm_Dumbbell_Pullover|Пуловер с гантелью|pullover
 Bent-Arm_Barbell_Pullover|Пуловер со штангой|pullover
 x_dips_chest|Отжимания на брусьях (акцент на грудь)|dip_chest
 Pullups|Подтягивания широким хватом|pullup+wide
-Chin-Up|Подтягивания обратным хватом|pullup+close
-V-Bar_Pullup|Подтягивания с V-рукоятью|pullup+vclose
+Chin-Up|Подтягивания обратным хватом|pullup+close+under
+V-Bar_Pullup|Подтягивания с V-рукоятью|pullup+vclose+neutral
 x_assisted_pullup|Подтягивания в гравитроне|pullup+close+assist
 Wide-Grip_Lat_Pulldown|Тяга верхнего блока широким хватом|pulldown+wide
 Close-Grip_Front_Lat_Pulldown|Тяга верхнего блока узким хватом|pulldown+close
-Underhand_Cable_Pulldowns|Тяга верхнего блока обратным хватом|pulldown
-V-Bar_Pulldown|Тяга верхнего блока с V-рукоятью|pulldown+vclose
+Underhand_Cable_Pulldowns|Тяга верхнего блока обратным хватом|pulldown+close+under
+V-Bar_Pulldown|Тяга верхнего блока с V-рукоятью|pulldown+vbar
 Wide-Grip_Pulldown_Behind_The_Neck|Тяга верхнего блока за голову|pulldown_neck
 One_Arm_Lat_Pulldown|Тяга верхнего блока одной рукой|pulldown+one
-Leverage_High_Row|Тяга сверху в рычажном тренажёре|pulldown
+Leverage_High_Row|Тяга сверху в рычажном тренажёре|pulldown+plates
 Seated_Cable_Rows|Тяга нижнего блока к поясу|row_cable
 Seated_One-arm_Cable_Pulley_Rows|Тяга нижнего блока одной рукой|row_cable+one
-Leverage_Iso_Row|Горизонтальная тяга в рычажном тренажёре|row_cable
+Leverage_Iso_Row|Горизонтальная тяга в рычажном тренажёре|row_cable+plates
 Bent_Over_Barbell_Row|Тяга штанги в наклоне|row_bent
-Reverse_Grip_Bent-Over_Rows|Тяга штанги в наклоне обратным хватом|row_bent_hi
+Reverse_Grip_Bent-Over_Rows|Тяга штанги в наклоне обратным хватом|row_bent_hi+under
 One-Arm_Dumbbell_Row|Тяга гантели одной рукой в наклоне|row_one
 Bent_Over_Two-Dumbbell_Row|Тяга гантелей в наклоне|row_bent
 Dumbbell_Incline_Row|Тяга гантелей лёжа на наклонной скамье|row_bent+support
@@ -64,7 +64,7 @@ T-Bar_Row_with_Handle|Тяга Т-грифа в наклоне|row_bent+lever
 Lying_T-Bar_Row|Тяга Т-грифа с упором грудью|row_bent+support
 Smith_Machine_Bent_Over_Row|Тяга в наклоне в Смите|row_bent+rails
 Straight-Arm_Pulldown|Пуловер на верхнем блоке прямыми руками|straight_pulldown
-Rope_Straight-Arm_Pulldown|Пуловер на верхнем блоке с канатом|straight_pulldown_rope
+Rope_Straight-Arm_Pulldown|Пуловер на верхнем блоке с канатом|straight_pulldown_rope+rope
 Barbell_Deadlift|Становая тяга|deadlift
 Sumo_Deadlift|Становая тяга сумо|deadlift_sumo
 Deficit_Deadlift|Становая тяга с дефицитом|deadlift+deficit
@@ -72,10 +72,10 @@ Rack_Pulls|Тяга с плинтов|rack_pull
 x_hyperextension|Гиперэкстензия|hyperext
 Good_Morning|Наклоны со штангой на плечах («гуд морнинг»)|good_morning
 Barbell_Shrug|Шраги со штангой|shrug
-Dumbbell_Shrug|Шраги с гантелями|shrug
+Dumbbell_Shrug|Шраги с гантелями|shrug+neutral
 Smith_Machine_Behind_the_Back_Shrug|Шраги в Смите|shrug+rails
 Cable_Shrugs|Шраги на нижнем блоке|shrug
-Leverage_Shrug|Шраги в тренажёре|shrug
+Leverage_Shrug|Шраги в тренажёре|shrug+plates
 Standing_Military_Press|Армейский жим стоя|press_overhead
 Seated_Barbell_Military_Press|Жим штанги сидя|press_overhead_seated
 Standing_Barbell_Press_Behind_Neck|Жим штанги из-за головы|press_neck
@@ -83,7 +83,7 @@ Dumbbell_Shoulder_Press|Жим гантелей сидя|press_overhead_seated
 Standing_Dumbbell_Press|Жим гантелей стоя|press_overhead
 Arnold_Dumbbell_Press|Жим Арнольда|arnold
 Machine_Shoulder_Military_Press|Жим вверх в тренажёре|press_overhead_seated
-Leverage_Shoulder_Press|Жим на плечи в рычажном тренажёре|press_overhead_seated+close
+Leverage_Shoulder_Press|Жим на плечи в рычажном тренажёре|press_overhead_seated+close+plates
 Smith_Machine_Overhead_Shoulder_Press|Жим сидя в Смите|press_overhead_seated+rails
 Seated_Cable_Shoulder_Press|Жим на плечи в кроссовере сидя|press_overhead_seated
 Side_Lateral_Raise|Махи гантелями в стороны|lateral_raise
@@ -101,7 +101,7 @@ Seated_Bent-Over_Rear_Delt_Raise|Махи в наклоне сидя на зад
 Reverse_Flyes|Разведение гантелей в наклоне|bent_raise
 Reverse_Machine_Flyes|Обратная «бабочка» на заднюю дельту|reverse_fly
 Cable_Rear_Delt_Fly|Разведение рук на блоках на заднюю дельту|reverse_fly
-Face_Pull|Тяга каната к лицу|face_pull
+Face_Pull|Тяга каната к лицу|face_pull+rope
 Upright_Barbell_Row|Тяга штанги к подбородку|upright_row
 Standing_Dumbbell_Upright_Row|Тяга гантелей к подбородку|upright_row
 Upright_Cable_Row|Тяга нижнего блока к подбородку|upright_row
@@ -112,9 +112,9 @@ Close-Grip_EZ_Bar_Curl|Подъём EZ-грифа узким хватом|curl_f
 Wide-Grip_Standing_Barbell_Curl|Подъём штанги на бицепс широким хватом|curl_f+wide
 Dumbbell_Bicep_Curl|Подъём гантелей на бицепс|curl
 Dumbbell_Alternate_Bicep_Curl|Попеременный подъём гантелей на бицепс|curl+alt
-Hammer_Curls|Молотки с гантелями|curl_f
-Alternate_Hammer_Curl|Попеременные молотки|curl_f+alt
-Cross_Body_Hammer_Curl|Молотки к противоположному плечу|curl_cross+alt
+Hammer_Curls|Молотки с гантелями|curl_f+neutral
+Alternate_Hammer_Curl|Попеременные молотки|curl_f+alt+neutral
+Cross_Body_Hammer_Curl|Молотки к противоположному плечу|curl_cross+alt+neutral
 Incline_Dumbbell_Curl|Подъём гантелей на бицепс на наклонной скамье|curl_incline
 Seated_Dumbbell_Curl|Подъём гантелей на бицепс сидя|curl+seated
 Concentration_Curls|Концентрированный подъём гантели|curl_conc
@@ -125,16 +125,16 @@ Machine_Preacher_Curls|Сгибание рук в тренажёре Скотт�
 Machine_Bicep_Curl|Сгибание рук в тренажёре|curl_machine
 Spider_Curl|«Паучьи» сгибания на скамье|curl_spider
 Standing_Biceps_Cable_Curl|Сгибание рук на нижнем блоке|curl
-Cable_Hammer_Curls_-_Rope_Attachment|Молотки на нижнем блоке с канатом|curl_f
-Reverse_Barbell_Curl|Подъём штанги обратным хватом|curl
-Zottman_Curl|Сгибания Зоттмана|curl_f+seated
+Cable_Hammer_Curls_-_Rope_Attachment|Молотки на нижнем блоке с канатом|curl_f+rope+neutral
+Reverse_Barbell_Curl|Подъём штанги обратным хватом|curl+over
+Zottman_Curl|Сгибания Зоттмана|curl_f+seated+under
 Drag_Curl|Драг-сгибания со штангой|curl_drag
 Triceps_Pushdown|Разгибание рук на верхнем блоке|pushdown
-Triceps_Pushdown_-_Rope_Attachment|Разгибание рук на верхнем блоке с канатом|pushdown_f
-Triceps_Pushdown_-_V-Bar_Attachment|Разгибание рук на верхнем блоке с V-рукоятью|pushdown_f+vclose
-Reverse_Grip_Triceps_Pushdown|Разгибание рук на блоке обратным хватом|pushdown_f+close
+Triceps_Pushdown_-_Rope_Attachment|Разгибание рук на верхнем блоке с канатом|pushdown_f+rope
+Triceps_Pushdown_-_V-Bar_Attachment|Разгибание рук на верхнем блоке с V-рукоятью|pushdown_f+vbar
+Reverse_Grip_Triceps_Pushdown|Разгибание рук на блоке обратным хватом|pushdown_f+close+under
 Machine_Triceps_Extension|Разгибание рук в тренажёре|pushdown
-Triceps_Overhead_Extension_with_Rope|Разгибание из-за головы на блоке с канатом|tri_overhead
+Triceps_Overhead_Extension_with_Rope|Разгибание из-за головы на блоке с канатом|tri_overhead+rope
 Standing_Dumbbell_Triceps_Extension|Французский жим гантели стоя|tri_overhead
 Seated_Triceps_Press|Французский жим гантели сидя|tri_overhead+seated
 Standing_Overhead_Barbell_Triceps_Extension|Французский жим штанги стоя|tri_overhead
@@ -156,7 +156,7 @@ Front_Barbell_Squat|Фронтальные приседания со штанг�
 Box_Squat|Приседания на ящик|squat_back+box
 Wide_Stance_Barbell_Squat|Приседания со штангой широкой постановкой|squat_fv+onback
 Smith_Machine_Squat|Приседания в Смите|squat_back+rails
-Hack_Squat|Гакк-приседания в тренажёре|squat_back
+Hack_Squat|Гакк-приседания в тренажёре|hack_squat
 Barbell_Hack_Squat|Гакк-приседания со штангой за спиной|squat_hold
 Goblet_Squat|Гоблет-приседания|squat_front
 Dumbbell_Squat|Приседания с гантелями|squat_hold
@@ -188,7 +188,7 @@ Butt_Lift_Bridge|Ягодичный мостик|glute_bridge
 Single_Leg_Glute_Bridge|Ягодичный мостик на одной ноге|glute_bridge_1
 One-Legged_Cable_Kickback|Отведение ноги назад на нижнем блоке|kickback_leg
 Glute_Kickback|Отведение ноги назад с упором|kickback_leg
-Pull_Through|Протяжка нижнего блока между ног|swing
+Pull_Through|Протяжка нижнего блока между ног|swing+rope
 Thigh_Abductor|Разведение ног в тренажёре|abduction
 Thigh_Adductor|Сведение ног в тренажёре|adduction
 One-Arm_Kettlebell_Swings|Махи гирей одной рукой|swing+one
@@ -202,10 +202,10 @@ Crunches|Скручивания на полу|crunch
 Decline_Crunch|Скручивания на наклонной скамье|crunch+decline
 Sit-Up|Подъём корпуса|situp
 Russian_Twist|Русские скручивания|twist
-Cable_Crunch|Скручивания на верхнем блоке («молитва»)|cable_crunch
+Cable_Crunch|Скручивания на верхнем блоке («молитва»)|cable_crunch+rope
 Ab_Crunch_Machine|Скручивания в тренажёре|cable_crunch
 Hanging_Leg_Raise|Подъём ног в висе на турнике|leg_raise_hanging
-x_captains_chair|Подъём ног в упоре на локтях|leg_raise_hanging
+x_captains_chair|Подъём ног в упоре на локтях|leg_raise_chair
 Flat_Bench_Lying_Leg_Raise|Подъём ног лёжа на скамье|leg_raise_lying
 Reverse_Crunch|Обратные скручивания|rev_crunch
 Plank|Планка|plank

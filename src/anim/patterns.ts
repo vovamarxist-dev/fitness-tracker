@@ -7,7 +7,7 @@
 export type Pt = [number, number];
 export type Pose = Partial<Record<'h' | 'n' | 'p' | 'e' | 'w' | 'k' | 'a' | 't' | 'e2' | 'w2' | 'k2' | 'a2' | 't2', Pt>>;
 
-export type Attach = 'hands' | 'neck' | 'platform' | 'pad' | 'knee' | 'ankle2';
+export type Attach = 'hands' | 'neck' | 'platform' | 'pad' | 'knee' | 'ankle2' | 'hip';
 
 export interface Pattern {
   view: 'side' | 'front';
@@ -19,6 +19,10 @@ export interface Pattern {
   scene?: string; // неподвижное оборудование (path d)
   dur?: number; // длительность цикла, сек
   behind?: boolean; // снаряд за головой (рисуется под фигурой)
+  pivot?: Pt; // ось рычага — для тренажёрного варианта (equipment 'machine')
+  prone?: boolean; // лицом вниз (для подсветки мышц: где грудь, где спина)
+  machine?: Partial<Pattern>; // отличия тренажёрного варианта (поза, крепление, сцена)
+  cue?: { ru: string; en: string }; // ключевая особенность техники — подпись под анимацией
 }
 
 function P(s: string): Pose {
@@ -38,12 +42,14 @@ const BENCH = 'M16 72 H74 M22 72 V91 M68 72 V91';
 
 const fly: Pattern = {
   view: 'front',
+  pivot: [34, 13],
   scene: 'M43 10 H57 V60 H43 Z',
   A: merge(FRONT, 'e 29 25 w 15 27'),
   B: merge(FRONT, 'e 37 30 w 47 32'),
 };
 const abduction: Pattern = {
   view: 'front',
+  pivot: [46, 84],
   attach: 'knee',
   scene: 'M34 62 H66 M50 62 V91',
   A: P('h 50 26 n 50 34 p 50 60 e 40 48 w 38 60 k 45 66 a 45 88'),
@@ -60,24 +66,30 @@ export const PATTERNS: Record<string, Pattern> = {
     A: P('h 26 51 n 32 57 p 52 72 k 66 70 a 70 90 e 38 66 w 40 52'),
     B: P('h 26 51 n 32 57 p 52 72 k 66 70 a 70 90 e 35 44 w 37 31'),
   },
-  chest_press: {
+  chest_press: { pivot: [46, 14], anchor: [6, 42],
     view: 'side',
     scene: 'M30 68 H54 M34 68 V91 M30 68 L28 28',
     A: P('h 36 30 n 35 38 p 37 66 k 56 66 a 58 90 e 28 46 w 42 44'),
     B: P('h 36 30 n 35 38 p 37 66 k 56 66 a 58 90 e 48 40 w 62 40'),
   },
   fly,
-  reverse_fly: { ...fly, A: fly.B, B: fly.A },
+  reverse_fly: { ...fly, anchor: [94, 26], A: fly.B, B: fly.A },
   crossover: { view: 'front', anchor: [6, 4], A: merge(FRONT, 'e 31 18 w 18 10'), B: merge(FRONT, 'e 40 38 w 48 48') },
   crossover_low: { view: 'front', anchor: [6, 90], A: merge(FRONT, 'e 32 34 w 20 46'), B: merge(FRONT, 'e 39 24 w 48 16') },
-  pushup: {
+  pushup: { prone: true,
     view: 'side',
     A: P('h 21 74 n 29 76 p 54 80 k 70 84 a 86 88 t 88 92 e 41 80 w 31 91'),
     B: P('h 23 59 n 31 62 p 56 73 k 71 81 a 86 88 t 88 92 e 32 76 w 31 91'),
   },
-  pullover: { view: 'side', scene: BENCH, A: merge(LYING, 'e 14 64 w 2 62'), B: merge(LYING, 'e 30 52 w 31 39') },
-  dip: {
+  pullover: { cue: { ru: 'Снаряд за голову по дуге', en: 'Weight arcs behind head' }, view: 'side', scene: BENCH, A: merge(LYING, 'e 14 64 w 2 62'), B: merge(LYING, 'e 30 52 w 31 39') },
+  dip: { cue: { ru: 'Корпус вертикально', en: 'Upright torso' },
     view: 'side',
+    machine: {
+      scene: 'M32 64 H56 M38 64 V91 M32 64 L30 26',
+      pivot: [24, 56],
+      A: P('h 44 26 n 43 34 p 40 62 k 60 62 a 62 90 e 37 46 w 52 48'),
+      B: P('h 44 26 n 43 34 p 40 62 k 60 62 a 62 90 e 42 56 w 52 64'),
+    },
     scene: 'M36 50 H64 M60 50 V91',
     A: P('h 50 18 n 50 26 p 50 52 k 54 66 a 44 72 e 50 38 w 50 50'),
     B: P('h 52 32 n 51 40 p 49 64 k 53 80 a 43 84 e 39 44 w 50 50'),
@@ -90,7 +102,7 @@ export const PATTERNS: Record<string, Pattern> = {
     A: P('h 50 26 n 50 33 p 50 58 k 48 74 a 48 88 e 38 21 w 34 8'),
     B: P('h 50 6 n 50 15 p 50 40 k 48 56 a 48 70 e 33 20 w 34 8'),
   },
-  pulldown: {
+  pulldown: { pivot: [14, 29],
     view: 'front',
     bar: true,
     anchor: [50, 0],
@@ -98,7 +110,7 @@ export const PATTERNS: Record<string, Pattern> = {
     A: P('h 50 30 n 50 38 p 50 64 k 41 68 a 40 90 e 37 25 w 32 12'),
     B: P('h 50 30 n 50 38 p 50 64 k 41 68 a 40 90 e 32 50 w 37 38'),
   },
-  row_cable: {
+  row_cable: { pivot: [56, 36],
     view: 'side',
     anchor: [94, 76],
     scene: 'M26 80 H52 M34 80 V91 M78 72 V91',
@@ -106,7 +118,7 @@ export const PATTERNS: Record<string, Pattern> = {
     B: P('h 42 46 n 42 54 p 40 78 k 58 70 a 74 84 e 30 62 w 44 66'),
   },
   row_bent: { view: 'side', A: merge(BENT, 'e 68 55 w 68 69'), B: merge(BENT, 'e 58 36 w 60 50') },
-  straight_pulldown: {
+  straight_pulldown: { cue: { ru: 'Руки прямые', en: 'Straight arms' },
     view: 'side',
     anchor: [80, 0],
     A: P('h 52 16 n 51 24 p 48 50 k 51 70 a 50 90 e 61 13 w 72 5'),
@@ -117,24 +129,24 @@ export const PATTERNS: Record<string, Pattern> = {
     A: P('h 66 42 n 60 47 p 39 63 k 57 76 a 50 90 e 59 62 w 58 77'),
     B: P('h 50 14 n 50 22 p 48 48 k 50 70 a 50 90 e 51 37 w 51 51'),
   },
-  rdl: {
+  rdl: { cue: { ru: 'Таз назад, колени чуть согнуты', en: 'Hips back, soft knees' },
     view: 'side',
     A: P('h 50 14 n 50 22 p 48 48 k 50 70 a 50 90 e 51 37 w 51 51'),
     B: P('h 68 37 n 61 41 p 40 50 k 52 70 a 50 90 e 61 55 w 61 68'),
   },
-  hyperext: {
+  hyperext: { prone: true,
     view: 'side',
     scene: 'M48 60 L62 66 M60 65 L58 91 M80 76 L88 72 M86 73 V91',
     A: P('p 55 56 k 70 64 a 84 72 n 44 80 h 41 87 e 49 74 w 46 70'),
     B: P('p 55 56 k 70 64 a 84 72 n 32 44 h 25 40 e 40 52 w 36 48'),
   },
-  good_morning: {
+  good_morning: { cue: { ru: 'Наклон с прямой спиной', en: 'Hinge with flat back' },
     view: 'side',
     attach: 'neck',
     A: P('h 48 14 n 48 22 p 48 48 k 50 70 a 48 90 e 40 32 w 45 23'),
     B: P('h 68 39 n 61 43 p 40 50 k 52 70 a 50 90 e 53 50 w 58 44'),
   },
-  shrug: {
+  shrug: { pivot: [10, 58], bar: true, anchor: [50, 92],
     view: 'front',
     A: P('h 50 14 n 50 22 p 50 48 k 46 70 a 45 90 e 42 37 w 41 50'),
     B: P('h 50 13 n 50 18 p 50 48 k 46 70 a 45 90 e 42 33 w 41 46'),
@@ -147,27 +159,27 @@ export const PATTERNS: Record<string, Pattern> = {
     A: P('h 50 22 n 50 30 p 50 56 k 47 74 a 46 90 e 38 40 w 40 29'),
     B: P('h 50 22 n 50 30 p 50 56 k 47 74 a 46 90 e 40 18 w 41 6'),
   },
-  press_overhead_seated: {
+  press_overhead_seated: { pivot: [16, 21], anchor: [8, 88],
     view: 'front',
     scene: 'M34 62 H66 M50 62 V91',
     A: P('h 50 26 n 50 34 p 50 60 k 41 68 a 40 90 e 38 44 w 40 33'),
     B: P('h 50 26 n 50 34 p 50 60 k 41 68 a 40 90 e 40 22 w 41 10'),
   },
-  lateral_raise: { view: 'front', A: merge(FRONT, 'e 41 36 w 40 50'), B: merge(FRONT, 'e 32 25 w 19 25') },
+  lateral_raise: { pivot: [43, 23], anchor: [62, 90], view: 'front', A: merge(FRONT, 'e 41 36 w 40 50'), B: merge(FRONT, 'e 32 25 w 19 25') },
   front_raise: { view: 'side', anchor: [44, 92], A: merge(STAND, 'e 51 37 w 52 51'), B: merge(STAND, 'e 64 23 w 78 22') },
   bent_raise: { view: 'side', A: merge(BENT, 'e 69 55 w 70 68'), B: merge(BENT, 'e 70 36 w 72 29') },
-  face_pull: { view: 'side', anchor: [96, 20], A: merge(STAND, 'e 63 25 w 76 22'), B: merge(STAND, 'e 44 18 w 56 15') },
-  upright_row: { view: 'front', bar: true, A: merge(FRONT, 'e 44 37 w 47 50'), B: merge(FRONT, 'e 33 22 w 45 26') },
+  face_pull: { cue: { ru: 'Канат к лицу, локти высоко', en: 'Rope to face, elbows high' }, view: 'side', anchor: [96, 20], A: merge(STAND, 'e 63 25 w 76 22'), B: merge(STAND, 'e 44 18 w 56 15') },
+  upright_row: { anchor: [50, 92], view: 'front', bar: true, A: merge(FRONT, 'e 44 37 w 47 50'), B: merge(FRONT, 'e 33 22 w 45 26') },
 
   // РУКИ
   curl: { view: 'side', anchor: [58, 92], A: merge(STAND, 'e 50 37 w 51 51'), B: merge(STAND, 'e 51 37 w 57 24') },
-  curl_preacher: {
+  curl_preacher: { cue: { ru: 'Плечо лежит на подушке Скотта', en: 'Upper arm on preacher pad' }, pivot: [61, 52], anchor: [84, 92],
     view: 'side',
     scene: 'M50 44 L68 58 L68 64 M64 62 V91 M28 66 H50 M38 66 V91',
     A: P('h 46 30 n 45 38 p 42 66 k 60 66 a 60 90 e 61 52 w 72 64'),
     B: P('h 46 30 n 45 38 p 42 66 k 60 66 a 60 90 e 61 52 w 56 38'),
   },
-  pushdown: { view: 'side', anchor: [60, 0], A: merge(STAND, 'e 51 37 w 63 31'), B: merge(STAND, 'e 51 37 w 54 51') },
+  pushdown: { pivot: [51, 37], view: 'side', anchor: [60, 0], A: merge(STAND, 'e 51 37 w 63 31'), B: merge(STAND, 'e 51 37 w 54 51') },
   tri_overhead: {
     view: 'side',
     anchor: [28, 44],
@@ -175,7 +187,7 @@ export const PATTERNS: Record<string, Pattern> = {
     B: P('h 50 24 n 50 32 p 50 58 k 50 75 a 50 90 e 53 17 w 55 3'),
   },
   skullcrusher: { view: 'side', scene: BENCH, A: merge(LYING, 'e 33 52 w 23 59'), B: merge(LYING, 'e 33 52 w 34 38') },
-  kickback: { view: 'side', A: merge(BENT, 'e 57 46 w 58 60'), B: merge(BENT, 'e 57 46 w 44 47') },
+  kickback: { cue: { ru: 'Плечо неподвижно вдоль корпуса', en: 'Upper arm fixed by torso' }, view: 'side', A: merge(BENT, 'e 57 46 w 58 60'), B: merge(BENT, 'e 57 46 w 44 47') },
   wrist_curl: {
     view: 'side',
     scene: 'M28 66 H50 M32 66 V91',
@@ -190,7 +202,7 @@ export const PATTERNS: Record<string, Pattern> = {
     A: P('h 48 14 n 48 22 p 48 48 k 50 70 a 48 90 e 40 32 w 45 23'),
     B: P('h 55 36 n 52 43 p 41 67 k 60 74 a 48 90 e 45 51 w 50 44'),
   },
-  squat_front: {
+  squat_front: { cue: { ru: 'Вес на груди, корпус вертикально', en: 'Load in front, upright torso' },
     view: 'side',
     A: P('h 48 14 n 48 22 p 48 48 k 50 70 a 48 90 e 52 34 w 56 28'),
     B: P('h 55 36 n 52 43 p 41 67 k 60 74 a 48 90 e 58 52 w 61 45'),
@@ -207,28 +219,28 @@ export const PATTERNS: Record<string, Pattern> = {
     A: merge(legPressBody, 'k 46 50 a 60 58'),
     B: merge(legPressBody, 'k 52 59 a 68 46'),
   },
-  calf_press: {
+  calf_press: { cue: { ru: 'Только стопы, колени прямые', en: 'Ankles only, knees locked' },
     view: 'side',
     attach: 'platform',
     scene: 'M40 74 L18 40 M40 74 L44 91 M20 80 H46',
     A: merge(legPressBody, 'k 52 59 a 68 46 t 73 41'),
     B: merge(legPressBody, 'k 52 59 a 68 46 t 75 45'),
   },
-  leg_ext: {
+  leg_ext: { pivot: [64, 66],
     view: 'side',
     attach: 'pad',
     scene: 'M36 70 H64 M40 70 V91 M36 70 L34 30',
     A: P('h 42 32 n 41 40 p 44 66 k 64 66 e 43 55 w 48 66 a 66 88'),
     B: P('h 42 32 n 41 40 p 44 66 k 64 66 e 43 55 w 48 66 a 83 60'),
   },
-  leg_curl_lying: {
+  leg_curl_lying: { prone: true, pivot: [68, 57],
     view: 'side',
     attach: 'pad',
     scene: 'M14 62 H70 M20 62 V91 M64 62 V91',
     A: P('h 17 54 n 25 56 p 48 57 k 68 57 e 26 65 w 20 62 a 86 58'),
     B: P('h 17 54 n 25 56 p 48 57 k 68 57 e 26 65 w 20 62 a 76 40'),
   },
-  leg_curl_seated: {
+  leg_curl_seated: { pivot: [60, 64],
     view: 'side',
     attach: 'pad',
     scene: 'M34 68 H62 M38 68 V91 M34 68 L32 30',
@@ -246,13 +258,14 @@ export const PATTERNS: Record<string, Pattern> = {
     A: P('h 50 18 n 50 26 p 50 52 k 61 70 a 63 90 e 43 34 w 47 27 k2 42 71 a2 32 88 t2 37 92'),
     B: P('h 50 30 n 50 38 p 50 64 k 64 66 a 64 90 e 43 46 w 47 39 k2 40 85 a2 30 89 t2 36 92'),
   },
-  hip_thrust: {
+  hip_thrust: { cue: { ru: 'Лопатки на скамье', en: 'Shoulders on bench' },
     view: 'side',
+    machine: { attach: 'hip', pivot: [86, 50] },
     scene: 'M8 66 H30 M12 66 V91 M26 66 V91',
     A: P('h 22 58 n 30 63 p 46 80 k 62 66 a 66 90 e 38 74 w 46 77'),
     B: P('h 22 57 n 30 62 p 50 62 k 66 62 a 66 90 e 40 66 w 50 60'),
   },
-  glute_bridge: {
+  glute_bridge: { cue: { ru: 'Лёжа на полу', en: 'Lying on the floor' },
     view: 'side',
     A: P('h 16 86 n 24 87 p 44 88 k 60 72 a 66 90 e 34 88 w 44 85'),
     B: P('h 16 86 n 24 87 p 46 76 k 62 70 a 66 90 e 35 80 w 46 73'),
@@ -265,7 +278,7 @@ export const PATTERNS: Record<string, Pattern> = {
     A: P('h 60 18 n 57 25 p 50 50 k 52 70 a 50 90 e 64 34 w 71 40 k2 46 70 a2 42 90'),
     B: P('h 60 18 n 57 25 p 50 50 k 52 70 a 50 90 e 64 34 w 71 40 k2 38 64 a2 26 72'),
   },
-  swing: {
+  swing: { cue: { ru: 'Толчок тазом, руки расслаблены', en: 'Hip snap, relaxed arms' },
     view: 'side',
     dur: 1.6,
     anchor: [8, 90],
@@ -276,10 +289,11 @@ export const PATTERNS: Record<string, Pattern> = {
   adduction: { ...abduction, A: abduction.B, B: abduction.A },
   calf_raise: {
     view: 'side',
+    machine: { attach: 'neck', pivot: [14, 20], scene: 'M46 90 H62' },
     A: P('h 50 14 n 50 22 p 50 48 e 50 37 w 50 51 k 50 70 a 50 90 t 57 91'),
     B: P('h 50 9 n 50 17 p 50 43 e 50 32 w 50 46 k 50 65 a 50 85 t 57 91'),
   },
-  calf_seated: {
+  calf_seated: { pivot: [86, 62],
     view: 'side',
     attach: 'knee',
     scene: 'M28 64 H50 M32 64 V91',
@@ -287,14 +301,30 @@ export const PATTERNS: Record<string, Pattern> = {
     B: P('h 34 30 n 34 38 p 36 62 e 44 50 w 56 58 k 58 58 a 59 80 t 66 86'),
   },
 
+  hack_squat: {
+    view: 'side',
+    attach: 'neck',
+    scene: 'M30 4 L56 66 M58 90 L80 84',
+    cue: { ru: 'Спина на подушке, движение по направляющим', en: 'Back on pad, sled rides the rails' },
+    A: P('h 41 14 n 44 22 p 54 46 k 64 70 a 68 86 e 50 30 w 47 21'),
+    B: P('h 48 31 n 51 39 p 60 62 k 77 72 a 68 86 e 57 47 w 54 38'),
+  },
+  leg_raise_chair: {
+    view: 'side',
+    scene: 'M43 18 L43 64 M46 43 H66 M40 64 V91',
+    cue: { ru: 'Упор на предплечья, спина прижата', en: 'Forearms on pads, back pressed in' },
+    A: P('h 50 18 n 49 27 p 49 55 k 50 72 a 50 87 e 50 42 w 63 42'),
+    B: P('h 50 18 n 49 27 p 49 55 k 66 50 a 66 68 e 50 42 w 63 42'),
+  },
+
   // ПРЕСС
 
   // ВАРИАЦИИ (чтобы похожие упражнения выглядели по-разному)
   bench_close: { view: 'side', scene: BENCH, A: merge(LYING, 'e 41 74 w 39 60'), B: merge(LYING, 'e 33 52 w 33 38') },
   bench_wide: { view: 'side', scene: BENCH, A: merge(LYING, 'e 29 79 w 35 62'), B: merge(LYING, 'e 30 55 w 32 43') },
-  jm_press: { view: 'side', scene: BENCH, A: merge(LYING, 'e 40 57 w 31 57'), B: merge(LYING, 'e 31 52 w 31 38') },
-  fly_side: { view: 'side', scene: BENCH, A: merge(LYING, 'e 33 79 w 35 86'), B: merge(LYING, 'e 31 54 w 31 41') },
-  chest_press_up: {
+  jm_press: { cue: { ru: 'Гриф опускается к подбородку', en: 'Bar lowers toward chin' }, view: 'side', scene: BENCH, A: merge(LYING, 'e 40 57 w 31 57'), B: merge(LYING, 'e 31 52 w 31 38') },
+  fly_side: { anchor: [30, 90], view: 'side', scene: BENCH, A: merge(LYING, 'e 33 79 w 35 86'), B: merge(LYING, 'e 31 54 w 31 41') },
+  chest_press_up: { pivot: [15, 10],
     view: 'side',
     scene: 'M30 68 H54 M34 68 V91 M30 68 L28 28',
     A: P('h 36 30 n 35 38 p 37 66 k 56 66 a 58 90 e 28 46 w 42 44'),
@@ -305,19 +335,19 @@ export const PATTERNS: Record<string, Pattern> = {
     A: P('h 50 64 n 50 70 p 50 76 k 48 82 a 48 88 e 30 72 w 33 91'),
     B: P('h 50 44 n 50 52 p 50 66 k 48 80 a 48 88 e 38 72 w 33 91'),
   },
-  pushup_elev: {
+  pushup_elev: { prone: true,
     view: 'side',
     scene: 'M76 80 H96 V91 M76 80 V91',
     A: P('h 21 76 n 29 78 p 54 77 k 70 79 a 86 79 t 88 75 e 41 82 w 31 91'),
     B: P('h 23 60 n 31 63 p 56 69 k 71 74 a 86 79 t 88 75 e 32 77 w 31 91'),
   },
-  pushup_incline: {
+  pushup_incline: { prone: true,
     view: 'side',
     scene: 'M14 66 H40 M18 66 V91 M36 66 V91',
     A: P('h 22 56 n 30 60 p 54 72 k 70 80 a 86 88 t 88 92 e 40 62 w 30 66'),
     B: P('h 20 46 n 28 52 p 54 70 k 70 79 a 86 88 t 88 92 e 29 59 w 30 66'),
   },
-  dip_chest: {
+  dip_chest: { cue: { ru: 'Корпус наклонён вперёд', en: 'Torso leaning forward' },
     view: 'side',
     scene: 'M36 50 H64 M60 50 V91',
     A: P('h 55 20 n 52 27 p 46 52 k 50 66 a 40 72 e 50 39 w 50 50'),
@@ -329,7 +359,7 @@ export const PATTERNS: Record<string, Pattern> = {
     A: P('h 42 22 n 40 30 p 40 56 k 62 58 a 74 90 e 36 43 w 34 56'),
     B: P('h 42 36 n 40 44 p 40 70 k 62 66 a 74 90 e 27 50 w 34 56'),
   },
-  pulldown_neck: {
+  pulldown_neck: { cue: { ru: 'Гриф за голову', en: 'Bar behind the neck' },
     view: 'front',
     bar: true,
     behind: true,
@@ -338,7 +368,7 @@ export const PATTERNS: Record<string, Pattern> = {
     A: P('h 50 30 n 50 38 p 50 64 k 41 68 a 40 90 e 37 25 w 32 12'),
     B: P('h 50 30 n 50 38 p 50 64 k 41 68 a 40 90 e 30 42 w 33 32'),
   },
-  row_bent_hi: {
+  row_bent_hi: { cue: { ru: 'Корпус выше, тяга к поясу', en: 'Higher torso, pull to waist' },
     view: 'side',
     A: P('h 70 26 n 64 30 p 46 50 k 54 70 a 50 90 e 64 44 w 64 58'),
     B: P('h 70 26 n 64 30 p 46 50 k 54 70 a 50 90 e 52 33 w 56 48'),
@@ -355,18 +385,18 @@ export const PATTERNS: Record<string, Pattern> = {
     A: P('h 52 16 n 51 24 p 48 50 k 51 70 a 50 90 e 61 13 w 72 5'),
     B: P('h 53 16 n 52 24 p 48 50 k 51 70 a 50 90 e 49 38 w 44 51'),
   },
-  deadlift_sumo: {
+  deadlift_sumo: { cue: { ru: 'Широкая стойка, хват между коленями', en: 'Wide stance, hands inside knees' },
     view: 'front',
     A: P('h 50 46 n 50 54 p 50 70 k 32 72 a 34 90 e 44 67 w 44 80'),
     B: P('h 50 14 n 50 22 p 50 48 k 40 70 a 34 90 e 44 36 w 44 50'),
   },
-  rack_pull: {
+  rack_pull: { cue: { ru: 'Гриф стартует со стоек выше колен', en: 'Bar starts on pins above knees' },
     view: 'side',
     scene: 'M68 30 V91 M60 72 H74',
     A: P('h 63 30 n 57 35 p 42 52 k 52 70 a 50 90 e 58 50 w 58 64'),
     B: P('h 50 14 n 50 22 p 48 48 k 50 70 a 50 90 e 51 37 w 51 51'),
   },
-  sldl: {
+  sldl: { cue: { ru: 'Ноги почти прямые', en: 'Nearly straight legs' },
     view: 'side',
     A: P('h 50 14 n 50 22 p 48 48 k 50 70 a 50 90 e 51 37 w 51 51'),
     B: P('h 72 46 n 64 49 p 40 50 k 47 70 a 50 90 e 64 63 w 64 77'),
@@ -377,14 +407,14 @@ export const PATTERNS: Record<string, Pattern> = {
     A: P('h 47 22 n 46 30 p 44 56 k 40 80 a 24 78 t 20 74 e 52 40 w 54 33'),
     B: P('h 87 55 n 80 57 p 58 68 k 40 80 a 24 78 t 20 74 e 77 65 w 81 62'),
   },
-  press_neck: {
+  press_neck: { cue: { ru: 'Гриф из-за головы', en: 'Press from behind the neck' },
     view: 'front',
     bar: true,
     behind: true,
     A: P('h 50 22 n 50 30 p 50 56 k 47 74 a 46 90 e 36 33 w 38 24'),
     B: P('h 50 22 n 50 30 p 50 56 k 47 74 a 46 90 e 40 18 w 41 6'),
   },
-  arnold: {
+  arnold: { cue: { ru: 'Ладони разворачиваются по ходу жима', en: 'Palms rotate during press' },
     view: 'front',
     scene: 'M34 62 H66 M50 62 V91',
     A: P('h 50 26 n 50 34 p 50 60 k 41 68 a 40 90 e 45 46 w 46 33'),
@@ -396,36 +426,36 @@ export const PATTERNS: Record<string, Pattern> = {
     A: P('h 67 52 n 61 54 p 40 64 k 58 66 a 60 90 e 59 68 w 59 80'),
     B: P('h 67 52 n 61 54 p 40 64 k 58 66 a 60 90 e 63 45 w 66 38'),
   },
-  curl_f: { view: 'front', A: merge(FRONT, 'e 42 37 w 41 51'), B: merge(FRONT, 'e 42 37 w 42 28') },
-  curl_drag: { view: 'side', A: merge(STAND, 'e 50 37 w 51 51'), B: merge(STAND, 'e 41 34 w 53 33') },
-  curl_cross: { view: 'front', A: merge(FRONT, 'e 42 37 w 41 51'), B: merge(FRONT, 'e 44 38 w 53 30') },
-  curl_incline: {
+  curl_f: { anchor: [50, 92], view: 'front', A: merge(FRONT, 'e 42 37 w 41 51'), B: merge(FRONT, 'e 42 37 w 42 28') },
+  curl_drag: { cue: { ru: 'Гриф скользит по корпусу, локти назад', en: 'Bar drags up the torso, elbows back' }, view: 'side', A: merge(STAND, 'e 50 37 w 51 51'), B: merge(STAND, 'e 41 34 w 53 33') },
+  curl_cross: { cue: { ru: 'К противоположному плечу', en: 'Across to the opposite shoulder' }, view: 'front', A: merge(FRONT, 'e 42 37 w 41 51'), B: merge(FRONT, 'e 44 38 w 53 30') },
+  curl_incline: { cue: { ru: 'Лёжа на наклонной, руки за корпусом', en: 'On incline, arms behind torso' },
     view: 'side',
     scene: 'M40 70 L24 30 M40 70 H58 M46 70 V91',
     A: P('h 26 26 n 30 34 p 40 66 k 58 66 a 60 90 e 29 50 w 28 64'),
     B: P('h 26 26 n 30 34 p 40 66 k 58 66 a 60 90 e 29 50 w 36 38'),
   },
-  curl_conc: {
+  curl_conc: { cue: { ru: 'Локоть упирается в бедро', en: 'Elbow braced on thigh' },
     view: 'side',
     scene: 'M26 66 H48 M34 66 V91',
     A: P('h 62 40 n 56 44 p 38 64 k 58 64 a 60 90 e 56 60 w 60 74'),
     B: P('h 62 40 n 56 44 p 38 64 k 58 64 a 60 90 e 56 60 w 54 46'),
   },
-  curl_spider: {
+  curl_spider: { cue: { ru: 'Грудью на наклонную скамью, руки висят', en: 'Chest on incline, arms hang' },
     view: 'side',
     scene: 'M28 82 L68 50 M38 80 V91 M62 56 V91',
     A: P('h 72 40 n 65 45 p 40 66 k 30 80 a 22 90 e 65 60 w 65 74'),
     B: P('h 72 40 n 65 45 p 40 66 k 30 80 a 22 90 e 65 60 w 70 49'),
   },
-  curl_machine: {
+  curl_machine: { pivot: [60, 44],
     view: 'side',
     scene: 'M28 66 H50 M38 66 V91 M50 47 H72 M66 47 V91',
     A: P('h 44 30 n 44 38 p 42 66 k 60 66 a 60 90 e 60 44 w 75 45'),
     B: P('h 44 30 n 44 38 p 42 66 k 60 66 a 60 90 e 60 44 w 55 29'),
   },
   pushdown_f: { view: 'front', anchor: [50, 0], bar: true, A: merge(FRONT, 'e 43 37 w 46 29'), B: merge(FRONT, 'e 43 37 w 39 51') },
-  skull_behind: { view: 'side', scene: BENCH, A: merge(LYING, 'e 30 53 w 15 61'), B: merge(LYING, 'e 31 52 w 31 38') },
-  squat_deep: {
+  skull_behind: { cue: { ru: 'Гриф опускается за голову', en: 'Bar lowers behind head' }, view: 'side', scene: BENCH, A: merge(LYING, 'e 30 53 w 15 61'), B: merge(LYING, 'e 31 52 w 31 38') },
+  squat_deep: { cue: { ru: 'Глубже параллели', en: 'Below parallel' },
     view: 'side',
     attach: 'neck',
     A: P('h 48 14 n 48 22 p 48 48 k 50 70 a 48 90 e 40 32 w 45 23'),
@@ -436,24 +466,24 @@ export const PATTERNS: Record<string, Pattern> = {
     A: P('h 50 14 n 50 22 p 50 48 k 42 70 a 38 90 e 43 37 w 46 48'),
     B: P('h 50 30 n 50 38 p 50 64 k 33 67 a 38 90 e 43 53 w 46 64'),
   },
-  leg_press_low: {
+  leg_press_low: { cue: { ru: 'Стопы ниже и уже', en: 'Feet low and narrow' },
     view: 'side',
     attach: 'platform',
     scene: 'M40 74 L18 40 M40 74 L44 91 M20 80 H46',
     A: merge(legPressBody, 'k 42 52 a 56 66'),
     B: merge(legPressBody, 'k 50 63 a 68 55'),
   },
-  lunge_step: {
+  lunge_step: { cue: { ru: 'Шаг вперёд', en: 'Step forward' },
     view: 'side',
     A: P('h 50 14 n 50 22 p 50 48 k 51 70 a 50 90 e 50 37 w 50 51 k2 49 70 a2 50 90'),
     B: P('h 52 30 n 52 38 p 50 64 k 66 66 a 68 90 e 52 53 w 52 67 k2 40 85 a2 30 89 t2 36 92'),
   },
-  lunge_back: {
+  lunge_back: { cue: { ru: 'Шаг назад', en: 'Step back' },
     view: 'side',
     A: P('h 52 14 n 52 22 p 52 48 k 53 70 a 52 90 e 52 37 w 52 51 k2 51 70 a2 52 90'),
     B: P('h 48 30 n 48 38 p 46 64 k 60 68 a 54 90 e 48 53 w 48 67 k2 33 84 a2 21 89 t2 27 92'),
   },
-  lunge_bulg: {
+  lunge_bulg: { cue: { ru: 'Задняя нога на скамье', en: 'Rear foot on bench' },
     view: 'side',
     scene: 'M8 70 H30 M12 70 V91 M26 70 V91',
     A: P('h 50 18 n 50 26 p 48 52 k 60 70 a 62 90 e 50 41 w 50 55 k2 36 64 a2 26 70 t2 20 67'),
@@ -485,13 +515,13 @@ export const PATTERNS: Record<string, Pattern> = {
     A: P('h 16 84 n 24 86 p 48 86 k 58 70 a 70 74 e 34 90 w 42 90'),
     B: P('h 16 84 n 24 86 p 46 80 k 40 62 a 54 58 e 34 90 w 42 90'),
   },
-  side_plank: {
+  side_plank: { prone: true,
     view: 'side',
     dur: 3.6,
     A: P('h 25 62 n 32 66 p 54 77 k 70 83 a 86 88 t 88 92 e 32 90 w 22 90 e2 32 51 w2 32 37'),
     B: P('h 25 61 n 32 65 p 54 72 k 70 81 a 86 88 t 88 92 e 32 90 w 22 90 e2 32 50 w2 32 36'),
   },
-  rollout: {
+  rollout: { cue: { ru: 'С колен, спина без прогиба', en: 'From knees, no sag' },
     view: 'side',
     A: P('h 64 50 n 58 53 p 42 66 k 40 90 a 24 90 t 20 92 e 62 67 w 62 82'),
     B: P('h 80 71 n 74 73 p 47 76 k 40 90 a 24 90 t 20 92 e 84 78 w 90 84'),
@@ -507,7 +537,7 @@ export const PATTERNS: Record<string, Pattern> = {
     A: P('h 18 84 n 26 86 p 50 86 k 62 72 a 72 90 e 24 78 w 20 82'),
     B: P('h 31 68 n 35 74 p 50 86 k 62 72 a 72 90 e 36 64 w 30 66'),
   },
-  cable_crunch: {
+  cable_crunch: { pivot: [53, 56],
     view: 'side',
     anchor: [56, 0],
     A: P('h 58 32 n 57 40 p 58 66 k 60 90 a 80 90 t 84 90 e 62 35 w 59 30'),
@@ -524,7 +554,7 @@ export const PATTERNS: Record<string, Pattern> = {
     A: P('h 16 84 n 24 86 p 48 86 k 66 87 a 84 88 e 34 90 w 42 90'),
     B: P('h 16 84 n 24 86 p 48 86 k 55 69 a 60 52 e 34 90 w 42 90'),
   },
-  plank: {
+  plank: { prone: true,
     view: 'side',
     dur: 3.6,
     A: P('h 23 72 n 30 75 p 54 80 k 70 85 a 86 88 t 88 92 e 31 90 w 22 90'),

@@ -2,7 +2,8 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useApp } from '../lib/app';
 import { inTelegram, haptic } from '../lib/telegram';
 import { ExerciseAnim } from '../anim/ExerciseAnim';
-import type { Equipment } from '../logic/types';
+import { animCues } from '../anim/cues';
+import type { Equipment, Lang, MuscleGroup } from '../logic/types';
 
 export function Header({ title, right }: { title: string; right?: ReactNode }) {
   const { canBack, back, t } = useApp();
@@ -119,8 +120,21 @@ export function Chips<T extends string>({ items, value, onChange }: { items: { i
   );
 }
 
+/** Подписи под анимацией: хват, насадка, наклон, тренажёр — чем упражнение отличается от похожих */
+export function AnimCues({ anim, equipment, group, lang }: { anim: string; equipment: Equipment; group: MuscleGroup; lang: Lang }) {
+  const cues = animCues(anim, equipment, group, lang);
+  if (!cues.length) return null;
+  return (
+    <ul className="anim-cues">
+      {cues.map((c) => (
+        <li key={c}>{c}</li>
+      ))}
+    </ul>
+  );
+}
+
 /** Анимация, которая запускается только когда карточка видна на экране */
-export function LazyAnim({ anim, equipment, size }: { anim: string; equipment: Equipment; size: number }) {
+export function LazyAnim({ anim, equipment, size, muscle }: { anim: string; equipment: Equipment; size: number; muscle?: string }) {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
   useEffect(() => {
@@ -132,7 +146,7 @@ export function LazyAnim({ anim, equipment, size }: { anim: string; equipment: E
   }, []);
   return (
     <div ref={ref} className="lazy-anim" style={{ width: size, height: size }}>
-      {visible ? <ExerciseAnim anim={anim} equipment={equipment} size={size} /> : <ExerciseAnim anim={anim} equipment={equipment} size={size} still />}
+      {visible ? <ExerciseAnim anim={anim} equipment={equipment} muscle={muscle} size={size} /> : <ExerciseAnim anim={anim} equipment={equipment} muscle={muscle} size={size} still />}
     </div>
   );
 }
