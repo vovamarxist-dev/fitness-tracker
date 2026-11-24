@@ -1,0 +1,7 @@
+{
+  "name": "mashina-relay",
+  "private": true,
+  "type": "module",
+  "scripts": { "deploy": "netlify deploy --prod" },
+  "devDependencies": { "netlify-cli": "27.20.1" }
+}

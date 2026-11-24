@@ -1,5 +1,5 @@
 // Напоминания об окончании отдыха через бота, когда приложение свёрнуто.
-// Сервер: server/main.ts (Deno Deploy). Адрес задаётся при сборке: VITE_NOTIFY_URL.
+// Сервер: cloud/ (Yandex Cloud Functions + Message Queue + YDB). Адрес — VITE_NOTIFY_URL при сборке.
 // Запросы — text/plain, чтобы браузер не делал предварительный CORS-запрос и
 // fetch с keepalive успел уйти, даже если Telegram закрывает приложение.
 import { tg } from './telegram';

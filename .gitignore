@@ -4,3 +4,8 @@ dist
 *.log
 .env
 .env.*
+yc-key.json
+*.key.json
+
+# Local Netlify folder
+.netlify
