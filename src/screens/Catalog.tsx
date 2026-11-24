@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useApp, useLive } from '../lib/app';
 import { db, uid } from '../lib/db';
-import { Header, Chips, Sheet, LazyAnim } from '../components/ui';
+import { Header, Chips, Sheet, LazyAnim, fmtRest } from '../components/ui';
 import { ExerciseAnim } from '../anim/ExerciseAnim';
 import { allExercises, EQUIP_LABEL, GROUPS, GROUP_LABEL, exName, muscleLabel } from '../data/catalog';
 import type { CatalogExercise, Equipment, MuscleGroup } from '../logic/types';
@@ -41,7 +41,7 @@ export function Catalog({ sessionId }: { sessionId?: string }) {
       ...session,
       exercises: [
         ...session.exercises,
-        { uid: uid(), exerciseId: ex.id, sets: 3, reps: isBody ? 12 : 10, weight: 0, step: ex.step },
+        { uid: uid(), exerciseId: ex.id, sets: 3, reps: isBody ? 12 : 10, weight: 0, step: ex.step, rest: ex.rest ?? 120 },
       ],
       updatedAt: Date.now(),
     });
@@ -94,9 +94,14 @@ export function Catalog({ sessionId }: { sessionId?: string }) {
                   <dd>{open.muscles.map((m) => muscleLabel(m, lang)).join(', ')}</dd>
                 </>
               )}
+              <dt>{lang === 'ru' ? 'Шаг веса' : 'Weight step'}</dt>
+              <dd>{open.step > 0 ? `${String(open.step).replace('.', ',')} ${t('kg')}` : lang === 'ru' ? 'повторами' : 'by reps'}</dd>
+              <dt>{lang === 'ru' ? 'Отдых' : 'Rest'}</dt>
+              <dd>{fmtRest(open.rest ?? 120, t)}</dd>
               <dt>{lang === 'ru' ? 'Тип' : 'Type'}</dt>
               <dd>{open.mechanic === 'compound' ? (lang === 'ru' ? 'базовое' : 'compound') : lang === 'ru' ? 'изолирующее' : 'isolation'}</dd>
             </dl>
+            {open.stepNote && <p className="step-note">{open.stepNote}{open.capNote ? ` ${open.capNote}` : ''}</p>}
             {sessionId && (
               <button className="btn btn-primary btn-block" onClick={() => void add(open)}>
                 {countIn(open.id) ? `${t('add')} (${t('added').toLowerCase()} ×${countIn(open.id)})` : t('add')}
@@ -142,6 +147,7 @@ function CustomForm({ onDone }: { onDone: (ex: CatalogExercise) => void }) {
           mechanic: 'compound',
           anim: DEFAULT_ANIM[group],
           step,
+          rest: equipment === 'body' ? 90 : 120,
           custom: true,
         });
       }}

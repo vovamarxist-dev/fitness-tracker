@@ -30,6 +30,8 @@ jobs:
         env:
           # Telegram ID участников теста через запятую: Settings → Secrets and variables → Actions → Variables
           VITE_ALLOWED_IDS: ${{ vars.ALLOWED_IDS }}
+          # Адрес сервера напоминаний (Deno Deploy): Settings → Secrets and variables → Actions → Variables
+          VITE_NOTIFY_URL: ${{ vars.NOTIFY_URL }}
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

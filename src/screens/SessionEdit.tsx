@@ -62,7 +62,6 @@ export function SessionEdit({ id }: { id: string }) {
         />
       </label>
 
-      <RestPicker label={t('restSets')} value={session.restSets} onChange={(v) => void save({ restSets: v })} />
       <RestPicker label={t('restExercises')} value={session.restExercises} onChange={(v) => void save({ restExercises: v })} />
 
       <h2 className="section-title">{t('exercises')}</h2>
@@ -97,6 +96,15 @@ export function SessionEdit({ id }: { id: string }) {
                 <Stepper label={t('reps')} value={pe.reps} min={1} max={100} onChange={(v) => setEx(i, { reps: v })} />
                 <WeightInput label={t('weight')} value={pe.weight} step={pe.step} onChange={(v) => setEx(i, { weight: v })} />
                 <Stepper
+                  label={t('restSets')}
+                  value={pe.rest ?? 120}
+                  step={15}
+                  min={15}
+                  max={600}
+                  onChange={(v) => setEx(i, { rest: v })}
+                  format={(v) => (v < 60 ? `${v} ${t('sec')}` : `${Math.floor(v / 60)}:${String(v % 60).padStart(2, '0')}`)}
+                />
+                <Stepper
                   label={t('step')}
                   value={pe.step}
                   step={pe.step >= 2.5 ? 2.5 : 0.5}
@@ -106,6 +114,7 @@ export function SessionEdit({ id }: { id: string }) {
                   format={(v) => String(v).replace('.', ',')}
                 />
               </div>
+              {ex?.stepNote && <p className="step-note">{ex.repCap ? ex.capNote : ex.stepNote}</p>}
             </li>
           );
         })}

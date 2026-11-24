@@ -28,6 +28,8 @@ interface TgWebApp {
   setHeaderColor?(c: string): void;
   setBackgroundColor?(c: string): void;
   onEvent(e: string, cb: () => void): void;
+  offEvent(e: string, cb: () => void): void;
+  requestWriteAccess?(cb: (granted: boolean) => void): void;
   BackButton: TgBackButton;
   HapticFeedback: TgHaptic;
 }

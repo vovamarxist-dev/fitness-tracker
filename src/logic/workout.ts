@@ -18,6 +18,7 @@ export async function startWorkout(session: Session): Promise<WorkoutLog> {
       reps: e.reps,
       weight: e.weight,
       step: e.step,
+      rest: e.rest,
       completedSets: null,
       rests: [],
       startedAt: 0,
@@ -50,6 +51,10 @@ export async function finishWorkout(log: WorkoutLog): Promise<WorkoutLog> {
         date: e.startedAt || done.startedAt,
         rests: e.rests,
         setReps: e.setReps,
+        setWeights: e.setWeights,
+        repCap: ex?.repCap,
+        repStep: ex?.repStep,
+        capNote: ex?.capNote,
       },
       prev?.entry.reco ? { state: prev.entry.reco.state, date: prev.entry.startedAt || prev.log.startedAt } : undefined,
     );

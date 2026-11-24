@@ -1,6 +1,7 @@
 import { useApp } from '../lib/app';
 import { Header, Chips } from '../components/ui';
 import { telegramUserId } from '../lib/telegram';
+import { ensureWriteAccess, remindersAvailable } from '../lib/notify';
 import type { Lang, ThemeSetting } from '../logic/types';
 
 export function Settings() {
@@ -33,6 +34,23 @@ export function Settings() {
           onChange={(lang) => updateSettings({ lang })}
         />
       </section>
+
+      {remindersAvailable() && (
+        <section className="field">
+          <label className="toggle">
+            <span>{t('botReminders')}</span>
+            <input
+              type="checkbox"
+              checked={settings.botReminders}
+              onChange={(e) => {
+                updateSettings({ botReminders: e.target.checked });
+                if (e.target.checked) void ensureWriteAccess();
+              }}
+            />
+          </label>
+          <span className="muted small">{t('botRemindersHint')}</span>
+        </section>
+      )}
 
       <section className="field">
         <label className="toggle">

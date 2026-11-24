@@ -21,7 +21,6 @@ export function Plans({ pick = false }: { pick?: boolean }) {
       id: uid(),
       name: '',
       exercises: [],
-      restSets: 120,
       restExercises: 180,
       order: (sessions?.length ?? 0) + 1,
       createdAt: now,
@@ -54,7 +53,7 @@ export function Plans({ pick = false }: { pick?: boolean }) {
                 <strong>{s.name || t('newSession')}</strong>
                 <span className="muted">
                   {plural(s.exercises.length, settings.lang, { ru: ['упражнение', 'упражнения', 'упражнений'], en: ['exercise', 'exercises'] })} ·{' '}
-                  {t('rest').toLowerCase()} {fmtRest(s.restSets, t)} / {fmtRest(s.restExercises, t)}
+                  {t('restBetweenEx')} {fmtRest(s.restExercises, t)}
                 </span>
                 {ready && (
                   <span className="session-ex">
@@ -72,14 +71,24 @@ export function Plans({ pick = false }: { pick?: boolean }) {
         })}
       </ul>
       {!pick && (
-        <button className="btn btn-primary btn-block sticky-bottom" onClick={create}>
-          + {t('createSession')}
-        </button>
+        <div className="plans-actions sticky-bottom">
+          <button className="btn btn-block" onClick={() => push({ name: 'generate' })}>
+            ⚡ {t('generateBtn')}
+          </button>
+          <button className="btn btn-primary btn-block" onClick={create}>
+            + {t('createSession')}
+          </button>
+        </div>
       )}
       {pick && sessions.length === 0 && (
-        <button className="btn btn-primary btn-block" onClick={() => replace({ name: 'plans' })}>
-          {t('myPlans')}
-        </button>
+        <>
+          <button className="btn btn-primary btn-block" onClick={() => replace({ name: 'generate' })}>
+            ⚡ {t('generateBtn')}
+          </button>
+          <button className="btn btn-block" onClick={() => replace({ name: 'plans' })}>
+            {t('myPlans')}
+          </button>
+        </>
       )}
     </main>
   );

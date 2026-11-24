@@ -15,6 +15,8 @@ export type Route =
   | { name: 'session'; id: string }
   | { name: 'catalog'; sessionId?: string }
   | { name: 'settings' }
+  | { name: 'history' }
+  | { name: 'generate' }
   | { name: 'policy' }
   | { name: 'consent' };
 

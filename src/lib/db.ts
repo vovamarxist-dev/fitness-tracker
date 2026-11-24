@@ -17,6 +17,17 @@ class AppDB extends Dexie {
       custom: 'id',
       kv: 'key',
     });
+    // v2: отдых между подходами переехал из тренировки в каждое упражнение
+    this.version(2)
+      .stores({ sessions: 'id, order', workouts: 'id, sessionId, startedAt, finishedAt', custom: 'id', kv: 'key' })
+      .upgrade((tx) =>
+        tx
+          .table('sessions')
+          .toCollection()
+          .modify((s: Session) => {
+            s.exercises = s.exercises.map((e) => ({ ...e, rest: e.rest ?? s.restSets ?? 120 }));
+          }),
+      );
   }
 }
 
@@ -24,7 +35,7 @@ export const db = new AppDB();
 
 export const uid = () => (crypto.randomUUID ? crypto.randomUUID() : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`);
 
-export const DEFAULT_SETTINGS: Settings = { theme: 'system', lang: 'ru', consentAt: null, sound: true };
+export const DEFAULT_SETTINGS: Settings = { theme: 'system', lang: 'ru', consentAt: null, sound: true, botReminders: true };
 
 export async function loadSettings(): Promise<Settings> {
   const row = await db.kv.get('settings');

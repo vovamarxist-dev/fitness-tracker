@@ -9,6 +9,8 @@ import { Summary } from './screens/Summary';
 import { Settings } from './screens/Settings';
 import { Consent, Policy } from './screens/Legal';
 import { AnimGallery } from './screens/AnimGallery';
+import { History } from './screens/History';
+import { Generate } from './screens/Generate';
 
 function Router() {
   const { route, t } = useApp();
@@ -22,6 +24,8 @@ function Router() {
     case 'workout': return <Workout id={route.id} />;
     case 'summary': return <Summary id={route.id} />;
     case 'settings': return <Settings />;
+    case 'history': return <History />;
+    case 'generate': return <Generate />;
     case 'policy': return <Policy />;
     case 'consent': return <Consent />;
   }

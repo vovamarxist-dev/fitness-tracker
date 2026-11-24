@@ -36,6 +36,9 @@ export function Home() {
         <button className="btn btn-xl" onClick={() => push({ name: 'plans' })}>
           {t('myPlans')}
         </button>
+        <button className="btn btn-xl" onClick={() => push({ name: 'history' })}>
+          {t('history')}
+        </button>
         <button className="btn btn-xl" onClick={() => push({ name: 'settings' })}>
           {t('settings')}
         </button>

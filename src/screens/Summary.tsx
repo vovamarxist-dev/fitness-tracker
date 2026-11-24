@@ -5,7 +5,7 @@ import { getExercise, exName } from '../data/catalog';
 import { applyToPlan, discipline } from '../logic/workout';
 import { fmtKg } from '../logic/progression';
 import { fmtDuration } from '../lib/i18n';
-import type { RecoAction } from '../logic/types';
+import type { RecoAction, WorkoutEntry } from '../logic/types';
 
 
 const ACTION_ICON: Record<RecoAction, string> = {
@@ -17,6 +17,14 @@ const ACTION_ICON: Record<RecoAction, string> = {
   break: '↓',
   stall: '!',
 };
+
+/** «10×80 · 10×80 · 8×75 кг» или «12 · 12 · 10» для своего веса */
+export function setsLine(e: WorkoutEntry, kg: string, noWeight: string) {
+  if (!e.setReps?.length) return `${e.completedSets}/${e.plannedSets} × ${e.reps} · ${e.weight > 0 ? `${fmtKg(e.weight)} ${kg}` : noWeight}`;
+  const ws = e.setWeights;
+  if (!ws?.some((w) => w > 0)) return e.setReps.join(' · ');
+  return `${e.setReps.map((r, i) => `${r}×${fmtKg(ws[i] ?? e.weight)}`).join(' · ')} ${kg}`;
+}
 
 export function Summary({ id }: { id: string }) {
   const { t, reset, settings } = useApp();
@@ -70,7 +78,7 @@ export function Summary({ id }: { id: string }) {
                   <span className="muted small">
                     {e.completedSets == null
                       ? t('skipped')
-                      : `${e.setReps?.length ? e.setReps.join(' · ') : `${e.completedSets}/${e.plannedSets} × ${e.reps}`} · ${e.weight > 0 ? `${fmtKg(e.weight)} ${t('kg')}` : t('noWeight')}`}
+                      : setsLine(e, t('kg'), t('noWeight'))}
                   </span>
                 </div>
                 {e.reco && e.reco.nextWeight !== e.weight && <span className="reco-next">{fmtKg(e.reco.nextWeight)} {t('kg')}</span>}

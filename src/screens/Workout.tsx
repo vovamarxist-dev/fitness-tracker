@@ -1,13 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
 import { useApp, useLive } from '../lib/app';
 import { db } from '../lib/db';
-import { Sheet, Stepper } from '../components/ui';
+import { Sheet, Stepper, WeightInput } from '../components/ui';
 import { ExerciseAnim } from '../anim/ExerciseAnim';
 import { getExercise, exName } from '../data/catalog';
 import { finishWorkout } from '../logic/workout';
 import { fmtKg } from '../logic/progression';
 import { fmtDuration } from '../lib/i18n';
-import { haptic, setClosingConfirmation } from '../lib/telegram';
+import { haptic, setClosingConfirmation, tg } from '../lib/telegram';
+import { cancelRestReminder, ensureWriteAccess, scheduleRestReminder } from '../lib/notify';
 import { beep, unlockAudio } from '../lib/sound';
 import type { WorkoutCursor, WorkoutLog } from '../logic/types';
 
@@ -24,6 +25,10 @@ export function Workout({ id }: { id: string }) {
     setClosingConfirmation(true);
     return () => setClosingConfirmation(false);
   }, []);
+
+  useEffect(() => {
+    if (settings.botReminders) void ensureWriteAccess();
+  }, [settings.botReminders]);
 
   // Тренировка уже завершена или в ней нет упражнений — сразу к итогам
   const finished = !!log?.finishedAt;
@@ -46,7 +51,6 @@ export function Workout({ id }: { id: string }) {
   const save = (patch: Partial<WorkoutLog>) => db.workouts.put({ ...log, ...patch });
   const setCursor = (patch: Partial<WorkoutCursor>) => save({ cursor: { ...c, ...patch } });
 
-  const restPlannedSets = async () => (await db.sessions.get(log.sessionId))?.restSets ?? 120;
   const restPlannedEx = async () => (await db.sessions.get(log.sessionId))?.restExercises ?? 180;
 
   const onSetDone = async () => {
@@ -58,7 +62,7 @@ export function Workout({ id }: { id: string }) {
       setConfirmOpen(true);
       return;
     }
-    await setCursor({ setsDone, phase: 'restSet', restStartedAt: Date.now(), restPlanned: await restPlannedSets() });
+    await setCursor({ setsDone, phase: 'restSet', restStartedAt: Date.now(), restPlanned: entry.rest ?? 120 });
   };
 
   const endRest = async () => {
@@ -77,14 +81,21 @@ export function Workout({ id }: { id: string }) {
   };
 
   /** Фиксирует результат упражнения и переходит к отдыху перед следующим */
-  const completeExercise = async (setReps: number[] | null) => {
+  const completeExercise = async (sets: SetResult[] | null) => {
     setConfirmOpen(false);
     setMenuOpen(false);
     const entries = [...log.entries];
-    // Полностью выполненный подход — все запланированные повторы (или больше)
-    const done = setReps?.filter((r) => r > 0) ?? null;
-    const completedSets = done ? done.filter((r) => r >= entry.reps).length : null;
-    entries[c.index] = { ...entry, completedSets, setReps: done ?? undefined, finishedAt: Date.now(), startedAt: entry.startedAt || Date.now() };
+    // Полностью выполненный подход — все запланированные повторы с плановым весом (или больше)
+    const done = sets?.filter((x) => x.reps > 0) ?? null;
+    const completedSets = done ? done.filter((x) => x.reps >= entry.reps && x.weight >= entry.weight).length : null;
+    entries[c.index] = {
+      ...entry,
+      completedSets,
+      setReps: done?.map((x) => x.reps),
+      setWeights: done?.map((x) => x.weight),
+      finishedAt: Date.now(),
+      startedAt: entry.startedAt || Date.now(),
+    };
     const next = c.index + 1;
     if (next >= entries.length) {
       const done = await finishWorkout({ ...log, entries });
@@ -116,6 +127,7 @@ export function Workout({ id }: { id: string }) {
         startedAt={c.restStartedAt}
         planned={c.restPlanned}
         sound={settings.sound}
+        reminders={settings.botReminders}
         title={c.phase === 'restSet' ? t('rest') : t('restBetweenExercises')}
         nextLine={
           c.phase === 'restSet'
@@ -185,8 +197,10 @@ export function Workout({ id }: { id: string }) {
           planned={entry.plannedSets}
           setsDone={c.setsDone}
           targetReps={entry.reps}
+          targetWeight={entry.weight}
+          step={entry.step}
           hint={t('confirmHint', { r: entry.reps, w: weightLabel })}
-          onConfirm={(reps) => void completeExercise(reps)}
+          onConfirm={(sets) => void completeExercise(sets)}
         />
       </Sheet>
 
@@ -207,51 +221,79 @@ export function Workout({ id }: { id: string }) {
   );
 }
 
-/** Подтверждение упражнения: повторы в каждом подходе. 0 — подход не делали. */
+interface SetResult {
+  reps: number;
+  weight: number;
+}
+
+/** Подтверждение упражнения: повторы и вес в каждом подходе. 0 повторов — подход не делали. */
 function ConfirmSets({
   planned,
   setsDone,
   targetReps,
+  targetWeight,
+  step,
   hint,
   onConfirm,
 }: {
   planned: number;
   setsDone: number;
   targetReps: number;
+  targetWeight: number;
+  step: number;
   hint: string;
-  onConfirm: (reps: number[]) => void;
+  onConfirm: (sets: SetResult[]) => void;
 }) {
   const { t } = useApp();
-  // Отмеченные подходы — по плану, неотмеченные — 0. Если не отмечено ни одного, считаем, что сделаны все.
-  const [reps, setReps] = useState<number[]>(() =>
-    Array.from({ length: Math.max(planned, setsDone) }, (_, i) => (setsDone === 0 || i < setsDone ? targetReps : 0)),
+  const withWeight = targetWeight > 0 || step > 0;
+  // Отмеченные подходы — по плану, неотмеченные — 0 повторов. Если не отмечено ни одного, считаем, что сделаны все.
+  const [rows, setRows] = useState<SetResult[]>(() =>
+    Array.from({ length: Math.max(planned, setsDone) }, (_, i) => ({
+      reps: setsDone === 0 || i < setsDone ? targetReps : 0,
+      weight: targetWeight,
+    })),
   );
-  const set = (i: number, v: number) => setReps((r) => r.map((x, j) => (j === i ? v : x)));
-  const full = reps.filter((r) => r >= targetReps).length;
+  const setReps = (i: number, reps: number) => setRows((r) => r.map((x, j) => (j === i ? { ...x, reps } : x)));
+  // Сменил вес в подходе — следующие подходы с тем же весом меняются вместе с ним (обычно вес снижают до конца)
+  const setWeight = (i: number, weight: number) =>
+    setRows((r) => {
+      const old = r[i].weight;
+      return r.map((x, j) => (j === i || (j > i && x.weight === old) ? { ...x, weight } : x));
+    });
+  const isFull = (x: SetResult) => x.reps >= targetReps && x.weight >= targetWeight;
+  const full = rows.filter(isFull).length;
   return (
     <div className="confirm">
       <h2>{t('confirmTitle')}</h2>
       <p className="muted">{hint}</p>
       <ul className="reps-list">
-        {reps.map((r, i) => (
-          <li key={i} className={r >= targetReps ? 'full' : r === 0 ? 'zero' : 'part'}>
-            <span className="reps-set">{t('setN', { n: i + 1 })}</span>
-            <Stepper value={r} min={0} max={100} onChange={(v) => set(i, v)} />
-            {i >= planned && (
-              <button className="icon-btn" onClick={() => setReps((x) => x.filter((_, j) => j !== i))} aria-label={t('delete')}>
-                ✕
-              </button>
-            )}
+        {rows.map((x, i) => (
+          <li key={i} className={isFull(x) ? 'full' : x.reps === 0 ? 'zero' : 'part'}>
+            <div className="reps-head">
+              <span className="reps-set">{t('setN', { n: i + 1 })}</span>
+              {i >= planned && (
+                <button className="icon-btn" onClick={() => setRows((r) => r.filter((_, j) => j !== i))} aria-label={t('delete')}>
+                  ✕
+                </button>
+              )}
+            </div>
+            <div className={withWeight ? 'reps-grid' : ''}>
+              <Stepper label={t('reps')} value={x.reps} min={0} max={300} onChange={(v) => setReps(i, v)} />
+              {withWeight && <WeightInput label={t('weight')} value={x.weight} step={step} onChange={(v) => setWeight(i, v)} />}
+            </div>
           </li>
         ))}
       </ul>
-      {reps.length < planned + 5 && (
-        <button className="btn btn-ghost btn-block" onClick={() => setReps((x) => [...x, targetReps])}>
+      {rows.length < planned + 5 && (
+        <button
+          className="btn btn-ghost btn-block"
+          onClick={() => setRows((r) => [...r, { reps: targetReps, weight: r[r.length - 1]?.weight ?? targetWeight }])}
+        >
           + {t('addSet')}
         </button>
       )}
       <p className="confirm-of">{t('fullSets', { a: full, b: planned })}</p>
-      <button className="btn btn-primary btn-block btn-xl" onClick={() => onConfirm(reps)}>
+      <button className="btn btn-primary btn-block btn-xl" onClick={() => onConfirm(rows)}>
         {t('confirm')}
       </button>
     </div>
@@ -268,6 +310,7 @@ function RestTimer({
   anim,
   progress,
   sound,
+  reminders,
 }: {
   startedAt: number;
   planned: number;
@@ -278,6 +321,7 @@ function RestTimer({
   anim?: { anim: string; equipment: import('../logic/types').Equipment };
   progress: string;
   sound: boolean;
+  reminders: boolean;
 }) {
   const { t } = useApp();
   const [now, setNow] = useState(Date.now());
@@ -293,6 +337,27 @@ function RestTimer({
       document.removeEventListener('visibilitychange', tick);
     };
   }, []);
+
+  // Свернул приложение во время отдыха — напоминание придёт от бота; вернулся — отменяем
+  useEffect(() => {
+    if (!reminders) return;
+    const restId = String(startedAt);
+    const endsAt = startedAt + planned * 1000;
+    const away = () => scheduleRestReminder(restId, endsAt, nextLine);
+    const back = () => cancelRestReminder(restId);
+    const onVis = () => (document.visibilityState === 'hidden' ? away() : back());
+    document.addEventListener('visibilitychange', onVis);
+    window.addEventListener('pagehide', away);
+    tg?.onEvent('deactivated', away);
+    tg?.onEvent('activated', back);
+    return () => {
+      document.removeEventListener('visibilitychange', onVis);
+      window.removeEventListener('pagehide', away);
+      tg?.offEvent('deactivated', away);
+      tg?.offEvent('activated', back);
+      back(); // отдых закончился — напоминания больше не нужны
+    };
+  }, [reminders, startedAt, planned, nextLine]);
 
   const elapsed = (now - startedAt) / 1000;
   const left = planned - elapsed;

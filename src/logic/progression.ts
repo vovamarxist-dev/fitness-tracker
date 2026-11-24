@@ -13,6 +13,10 @@ export interface ProgressInput {
   date: number;
   rests?: RestRecord[];
   setReps?: number[]; // фактические повторы в подходах
+  setWeights?: number[]; // фактический вес в подходах
+  repCap?: number; // свой вес: после скольких повторов усложнять
+  repStep?: number; // свой вес: шаг прибавки повторов
+  capNote?: string; // свой вес: что делать после repCap
 }
 
 export interface PrevInfo {
@@ -58,7 +62,10 @@ export function recommend(cur: ProgressInput, prev?: PrevInfo): Recommendation {
     if (!success && cur.setReps?.length) {
       const short = cur.setReps.filter((x) => x < reps);
       const missing = short.reduce((s, x) => s + (reps - x), 0);
-      messages.splice(1, 0, `Повторы по подходам: ${cur.setReps.join(' · ')} (план ${reps}). Не добрал ${missing} повт.`);
+      const ws = cur.setWeights;
+      const sets = ws?.length && step > 0 ? cur.setReps.map((r, i) => `${r}×${fmtKg(ws[i] ?? W)}`).join(' · ') : cur.setReps.join(' · ');
+      const lighter = ws?.some((w) => w < W) ? ' Часть подходов сделана с меньшим весом — они не засчитаны как полные.' : '';
+      messages.splice(1, 0, `Подходы: ${sets} (план ${reps}${step > 0 ? `×${fmtKg(W)}` : ''}). Не добрал ${missing} повт.${lighter}`);
     }
     if (note) messages.push(note);
     return { ...r, messages };
@@ -67,12 +74,18 @@ export function recommend(cur: ProgressInput, prev?: PrevInfo): Recommendation {
   // Собственный вес: прогрессия повторами
   if (step <= 0) {
     if (success) {
-      const nextReps = reps + 1;
+      const cap = cur.repCap ?? 15;
+      const reached = reps >= cap;
+      const nextReps = reached ? reps : reps + (cur.repStep ?? 1);
       return finish({
         action: 'reps',
         nextWeight: W,
         nextReps,
-        messages: [nextReps > 15 ? `Больше 15 повторов — пора вешать отягощение 2,5 кг.` : `Все подходы закрыты. В следующий раз — ${nextReps} повторов в подходе.`],
+        messages: [
+          reached
+            ? cur.capNote ?? `Больше ${cap} повторов — пора вешать отягощение 2,5 кг.`
+            : `Все подходы закрыты. В следующий раз — ${nextReps} повторов в подходе.${nextReps >= cap && cur.capNote ? ` ${cur.capNote}` : ''}`,
+        ],
         state: { ...base, weight: W, successStreak: base.successStreak + 1, failStreak: 0 },
       });
     }

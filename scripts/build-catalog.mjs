@@ -4,6 +4,7 @@
 // упражнения своя анимация (src/anim/patterns.ts), имя анимации задаётся третьим полем строки.
 // Запуск: npm run catalog
 import { readFileSync, writeFileSync } from 'node:fs';
+import { loadingFor } from './loading.mjs';
 
 const src = JSON.parse(readFileSync(process.argv[2], 'utf8'));
 const byId = new Map(src.map((e) => [e.id, e]));
@@ -238,20 +239,6 @@ const EQUIP = {
   cable: 'cable', 'body only': 'body', kettlebells: 'kettlebell', other: 'machine',
 };
 
-const LOWER = new Set(['quadriceps', 'hamstrings', 'glutes', 'adductors', 'abductors', 'calves', 'lower back']);
-
-// Шаг прибавки по умолчанию (см. docs/progression.md)
-function defaultStep(equipment, mechanic, primary) {
-  const lower = LOWER.has(primary);
-  switch (equipment) {
-    case 'barbell': case 'smith': case 'ezbar': return lower && mechanic === 'compound' ? 5 : 2.5;
-    case 'dumbbell': return mechanic === 'compound' ? 2 : 1;
-    case 'machine': case 'cable': return mechanic === 'compound' || lower ? 5 : 2.5;
-    case 'kettlebell': return 4;
-    default: return 2.5;
-  }
-}
-
 const out = [];
 const seen = new Set();
 for (const line of LIST.trim().split('\n')) {
@@ -280,7 +267,7 @@ for (const line of LIST.trim().split('\n')) {
     equipment,
     mechanic,
     anim,
-    step: equipment === 'body' ? 0 : defaultStep(equipment, mechanic, primary),
+    ...loadingFor({ id, anim, equipment, mechanic }),
   });
 }
 

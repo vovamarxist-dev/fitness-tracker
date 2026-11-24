@@ -2,4 +2,5 @@
 declare const __APP_VERSION__: string;
 interface ImportMetaEnv {
   readonly VITE_ALLOWED_IDS?: string;
+  readonly VITE_NOTIFY_URL?: string;
 }

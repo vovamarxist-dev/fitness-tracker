@@ -13,7 +13,12 @@ export interface CatalogExercise {
   equipment: Equipment;
   mechanic: Mechanic;
   anim: string;
-  step: number; // шаг прибавки по умолчанию, кг (0 — собственный вес)
+  step: number; // рекомендованный шаг прибавки, кг (0 — собственный вес, прогрессия повторами)
+  stepNote?: string; // почему такой шаг
+  rest: number; // рекомендованный отдых между подходами, сек
+  repCap?: number; // для своего веса: после скольких повторов усложнять
+  repStep?: number; // для своего веса: на сколько повторов прибавлять
+  capNote?: string; // что делать, когда достигнут repCap
   custom?: boolean;
 }
 
@@ -25,6 +30,7 @@ export interface PlanExercise {
   reps: number;
   weight: number; // кг; 0 — без веса
   step: number;
+  rest: number; // отдых между подходами этого упражнения, сек
 }
 
 /** Тренировочная сессия (день плана), например «Грудь + трицепс» */
@@ -32,8 +38,9 @@ export interface Session {
   id: string;
   name: string;
   exercises: PlanExercise[];
-  restSets: number; // отдых между подходами, сек
+  restSets?: number; // устарело: раньше отдых был общим на тренировку, теперь он у каждого упражнения
   restExercises: number; // отдых между упражнениями, сек
+  generated?: string; // из какого шаблона сплита создана
   order: number;
   createdAt: number;
   updatedAt: number;
@@ -74,6 +81,8 @@ export interface WorkoutEntry {
   step: number;
   completedSets: number | null; // null — упражнение пропущено
   setReps?: number[]; // фактические повторы в каждом подходе
+  setWeights?: number[]; // фактический вес в каждом подходе
+  rest?: number; // плановый отдых между подходами, сек
   rests: RestRecord[]; // отдых между подходами этого упражнения
   startedAt: number;
   finishedAt: number | null;
@@ -109,4 +118,5 @@ export interface Settings {
   lang: Lang;
   consentAt: number | null;
   sound: boolean;
+  botReminders: boolean; // напоминания об отдыхе в чат бота, когда приложение свёрнуто
 }

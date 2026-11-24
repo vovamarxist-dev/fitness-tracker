@@ -111,8 +111,23 @@ describe('recommend', () => {
 
 describe('повторы по подходам', () => {
   it('при неудаче показывает повторы и недобор', () => {
-    const r = recommend({ ...base, completedSets: 2, plannedSets: 3, setReps: [8, 8, 6] });
-    expect(r.messages[1]).toContain('8 · 8 · 6');
+    const r = recommend({ ...base, completedSets: 2, plannedSets: 3, setReps: [8, 8, 6], setWeights: [80, 80, 80] });
+    expect(r.messages[1]).toContain('8×80 · 8×80 · 6×80');
     expect(r.messages[1]).toContain('Не добрал 2');
+  });
+});
+
+describe('свой вес и вес по подходам', () => {
+  it('прибавляет повторы с заданным шагом и останавливается на потолке', () => {
+    const plank = recommend({ ...base, weight: 0, step: 0, reps: 60, repStep: 10, repCap: 120 });
+    expect(plank.nextReps).toBe(70);
+    const capped = recommend({ ...base, weight: 0, step: 0, reps: 12, repCap: 12, capNote: 'вешай 2,5 кг' });
+    expect(capped.nextReps).toBe(12);
+    expect(capped.messages[0]).toBe('вешай 2,5 кг');
+  });
+  it('отмечает подходы с меньшим весом', () => {
+    const r = recommend({ ...base, completedSets: 2, plannedSets: 3, setReps: [8, 8, 8], setWeights: [80, 80, 75] });
+    expect(r.messages[1]).toContain('8×75');
+    expect(r.messages[1]).toContain('меньшим весом');
   });
 });
