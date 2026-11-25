@@ -24,12 +24,12 @@
       <rect x="18" y="4" width="12" height="28" rx="1" fill="#ff5a1f" opacity="0.72"/>
       <rect x="36" y="-6" width="12" height="38" rx="1" fill="#ff5a1f"/>
     </g>
-    <text x="338" y="150" font-size="50" font-weight="700" fill="#f2f2f0" letter-spacing="5">МАШИНА</text>
+    <text x="338" y="148" font-size="32" font-weight="700" fill="#f2f2f0" letter-spacing="2">ТРЕНИРОВЫЧ</text>
     <text x="340" y="178" font-size="13" fill="#8a8f98" letter-spacing="2">ПОСТРОЙ ИЗ СЕБЯ МАШИНУ</text>
     <g font-size="16" fill="#d6d7da" font-family="-apple-system, 'Helvetica Neue', Arial, sans-serif" font-weight="600">
-      <rect x="340" y="214" width="9" height="9" fill="#ff5a1f"/><text x="360" y="224">Свой план тренировок</text>
-      <rect x="340" y="250" width="9" height="9" fill="#ff5a1f"/><text x="360" y="260">Жёсткий отдых по таймеру</text>
-      <rect x="340" y="286" width="9" height="9" fill="#ff5a1f"/><text x="360" y="296">Подсказки по весам</text>
+      <rect x="340" y="214" width="9" height="9" fill="#ff5a1f"/><text x="360" y="224">Дисциплина в тренировках</text>
+      <rect x="340" y="250" width="9" height="9" fill="#ff5a1f"/><text x="360" y="260">Полный фокус и контроль</text>
+      <rect x="340" y="286" width="9" height="9" fill="#ff5a1f"/><text x="360" y="296">Focus on yourself!</text>
     </g>
   </g>
 </svg>

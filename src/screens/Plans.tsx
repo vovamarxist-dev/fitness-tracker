@@ -1,7 +1,7 @@
 import { useApp, useLive } from '../lib/app';
 import { db, uid } from '../lib/db';
 import { Header, fmtRest } from '../components/ui';
-import { startWorkout } from '../logic/workout';
+import { estimateMin, startWorkout } from '../logic/workout';
 import { getExercise, exName } from '../data/catalog';
 import { plural } from '../lib/i18n';
 import type { Session } from '../logic/types';
@@ -50,17 +50,20 @@ export function Plans({ pick = false }: { pick?: boolean }) {
                 disabled={pick && !ready}
                 onClick={() => (pick ? void start(s) : push({ name: 'session', id: s.id }))}
               >
-                <strong>{s.name || t('newSession')}</strong>
-                <span className="muted">
-                  {plural(s.exercises.length, settings.lang, { ru: ['упражнение', 'упражнения', 'упражнений'], en: ['exercise', 'exercises'] })} ·{' '}
-                  {t('restBetweenEx')} {fmtRest(s.restExercises, t)}
+                <strong className="session-name">{s.name || t('newSession')}</strong>
+                <span className="next-meta">
+                  <span>{plural(s.exercises.length, settings.lang, { ru: ['упражнение', 'упражнения', 'упражнений'], en: ['exercise', 'exercises'] })}</span>
+                  {ready && <span>{t('aboutMin', { n: estimateMin(s) })}</span>}
+                  <span className="muted-meta">
+                    {t('restShort')} {fmtRest(s.restExercises, t)}
+                  </span>
                 </span>
                 {ready && (
                   <span className="session-ex">
                     {s.exercises
                       .slice(0, 4)
                       .map((e) => exName(getExercise(e.exerciseId), settings.lang))
-                      .join(' · ')}
+                      .join(', ')}
                     {s.exercises.length > 4 ? ' …' : ''}
                   </span>
                 )}

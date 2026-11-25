@@ -117,7 +117,7 @@ export function Workout({ id }: { id: string }) {
   };
 
   const weightLabel = entry.weight > 0 ? `${fmtKg(entry.weight)} ${t('kg')}` : t('noWeight');
-  const progress = `${c.index + 1} / ${log.entries.length}`;
+  const progress = { index: c.index, total: log.entries.length };
 
   if (c.phase !== 'exercise' && c.restStartedAt != null) {
     const nextEx = c.phase === 'restExercise' ? ex : undefined;
@@ -145,13 +145,17 @@ export function Workout({ id }: { id: string }) {
   return (
     <main className="screen workout">
       <div className="workout-top">
-        <span className="muted">
-          {session.sessionName} · {progress}
-        </span>
+        <div className="workout-where">
+          <span className="workout-session">{session.sessionName}</span>
+          <span className="workout-count">
+            {progress.index + 1}/{progress.total}
+          </span>
+        </div>
         <button className="icon-btn" onClick={() => setMenuOpen(true)} aria-label="menu">
           ⋯
         </button>
       </div>
+      <ExerciseTrack {...progress} />
 
       <section className="workout-main">
         {ex && (
@@ -320,7 +324,7 @@ function RestTimer({
   buttonLabel: string;
   onEnd: () => void;
   anim?: { anim: string; equipment: import('../logic/types').Equipment; muscles: string[] };
-  progress: string;
+  progress: { index: number; total: number };
   sound: boolean;
   reminders: boolean;
 }) {
@@ -393,17 +397,33 @@ function RestTimer({
 
   return (
     <main className={`screen rest ${over ? 'over' : left <= WARN_AT ? 'soon' : ''}`}>
-      <div className="workout-top">
-        <span className="muted">{progress}</span>
-      </div>
+      <ExerciseTrack {...progress} />
       <p className="rest-title">{over ? t('overtime') : title}</p>
       <div className="ring">
         <svg viewBox="0 0 280 280" aria-hidden="true">
+          {Array.from({ length: 60 }, (_, i) => {
+            const a = (i / 60) * 2 * Math.PI;
+            const major = i % 5 === 0;
+            const r1 = major ? 129 : 131;
+            return (
+              <line
+                key={i}
+                className={major ? 'tick major' : 'tick'}
+                x1={140 + Math.sin(a) * r1}
+                y1={140 - Math.cos(a) * r1}
+                x2={140 + Math.sin(a) * 138}
+                y2={140 - Math.cos(a) * 138}
+              />
+            );
+          })}
           <circle cx="140" cy="140" r={R} className="ring-bg" />
           <circle cx="140" cy="140" r={R} className="ring-fg" strokeDasharray={C} strokeDashoffset={over ? 0 : C * pct} transform="rotate(-90 140 140)" />
         </svg>
         <div className="ring-text" role="timer" aria-live="off">
-          <span className="ring-time">{over ? `+${fmtDuration(-left)}` : fmtDuration(Math.ceil(left))}</span>
+          {(() => {
+            const txt = over ? `+${fmtDuration(-left)}` : fmtDuration(Math.ceil(left));
+            return <span className={`ring-time${txt.length > 5 ? ' long' : ''}`}>{txt}</span>;
+          })()}
           <span className="muted">{fmtDuration(planned)}</span>
         </div>
       </div>
@@ -418,5 +438,16 @@ function RestTimer({
         {buttonLabel}
       </button>
     </main>
+  );
+}
+
+/** Полоса прогресса тренировки: по сегменту на упражнение */
+function ExerciseTrack({ index, total }: { index: number; total: number }) {
+  return (
+    <div className="ex-track" role="progressbar" aria-valuemin={1} aria-valuemax={total} aria-valuenow={index + 1}>
+      {Array.from({ length: total }, (_, i) => (
+        <span key={i} className={i < index ? 'on' : i === index ? 'cur' : ''} />
+      ))}
+    </div>
   );
 }

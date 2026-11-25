@@ -2,6 +2,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from './App';
 import { initTelegram } from './lib/telegram';
+import '@fontsource-variable/tektur/wdth.css';
 import './styles.css';
 
 initTelegram();

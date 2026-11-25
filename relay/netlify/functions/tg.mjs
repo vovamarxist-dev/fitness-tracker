@@ -1,4 +1,4 @@
-// Пересыльщик Telegram Bot API для бэкенда «Машины» в Yandex Cloud:
+// Пересыльщик Telegram Bot API для бэкенда «Тренировыча» в Yandex Cloud:
 // из российских дата-центров api.telegram.org недоступен, из Netlify (США) — доступен.
 // Пускает только запросы с общим секретом и только нужные методы бота.
 // Окружение Netlify: BOT_TOKEN, RELAY_SECRET.

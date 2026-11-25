@@ -91,3 +91,11 @@ export function discipline(log: WorkoutLog) {
     avgOver: Math.round(over.reduce((s, x) => s + x, 0) / all.length),
   };
 }
+
+/** Примерная длительность тренировки в минутах: ~45 с на подход + отдых между подходами и упражнениями */
+export function estimateMin(s: Session) {
+  const between = s.restExercises ?? 150;
+  const sec =
+    s.exercises.reduce((sum, ex) => sum + ex.sets * 45 + Math.max(0, ex.sets - 1) * (ex.rest ?? 120), 0) + Math.max(0, s.exercises.length - 1) * between;
+  return Math.max(5, Math.round(sec / 60 / 5) * 5);
+}
